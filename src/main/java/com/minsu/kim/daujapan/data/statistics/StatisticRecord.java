@@ -4,7 +4,7 @@ import com.minsu.kim.daujapan.data.statistics.amount.PaymentAmountRecord;
 import com.minsu.kim.daujapan.data.statistics.amount.SalesAmountRecord;
 import com.minsu.kim.daujapan.data.statistics.amount.UsageAmountRecord;
 import com.minsu.kim.daujapan.data.statistics.member.LeaverRecord;
-import com.minsu.kim.daujapan.data.statistics.member.SubscriverRecord;
+import com.minsu.kim.daujapan.data.statistics.member.SubscriberRecord;
 
 /**
  * 자세한 기능을 적어주세요
@@ -13,7 +13,7 @@ import com.minsu.kim.daujapan.data.statistics.member.SubscriverRecord;
  * @since 1.0
  */
 public record StatisticRecord(
-    SubscriverRecord subscriverRecord,
+    SubscriberRecord subscriberRecord,
     LeaverRecord leaverRecord,
     PaymentAmountRecord paymentAmountRecord,
     UsageAmountRecord usageAmountRecord,

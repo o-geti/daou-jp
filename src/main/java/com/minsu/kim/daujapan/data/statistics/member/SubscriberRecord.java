@@ -8,4 +8,4 @@ import java.time.LocalDateTime;
  * @author minsu.kim
  * @since 1.0
  */
-public record SubscriverRecord(LocalDateTime recordTime, int subscriberCount) {}
+public record SubscriberRecord(LocalDateTime recordTime, int subscriberCount) {}
