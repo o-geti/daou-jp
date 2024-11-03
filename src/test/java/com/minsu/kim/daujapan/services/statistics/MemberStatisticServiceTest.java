@@ -44,7 +44,7 @@ class MemberStatisticServiceTest {
         .willReturn(TestDummy.findSubscriberStatisticEntitySuit());
 
     // when
-    var subscriberSuit = TestDummy.findSubscriberRecordSuit();
+    var subscriberSuit = TestDummy.createSubscriberRecordSuit();
     var savedSubscriberStatisticRecord = statisticService.saveSubscriberStatistic(subscriberSuit);
 
     // then
@@ -62,7 +62,7 @@ class MemberStatisticServiceTest {
         .willReturn(TestDummy.findLeaverStatisticEntitySuit());
 
     // when
-    var leaverDummy = TestDummy.findLeaverRecordSuit();
+    var leaverDummy = TestDummy.createLeaverRecordSuit();
     var leaverRecord = statisticService.saveLeaverStatistic(leaverDummy);
 
     // then
@@ -78,10 +78,10 @@ class MemberStatisticServiceTest {
       return new SubscriberStatisticEntity(1L, datetime, 10);
     }
 
-    public static SubscriberRecord findSubscriberRecordSuit() {
+    public static SubscriberRecord createSubscriberRecordSuit() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return new SubscriberRecord(datetime, 10);
+      return new SubscriberRecord(null, datetime, 10);
     }
 
     public static LeaverStatisticEntity findLeaverStatisticEntitySuit() {
@@ -90,10 +90,10 @@ class MemberStatisticServiceTest {
       return new LeaverStatisticEntity(1L, datetime, 10);
     }
 
-    public static LeaverRecord findLeaverRecordSuit() {
+    public static LeaverRecord createLeaverRecordSuit() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return new LeaverRecord(datetime, 10);
+      return new LeaverRecord(null, datetime, 10);
     }
   }
 }

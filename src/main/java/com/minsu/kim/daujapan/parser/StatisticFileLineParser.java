@@ -54,34 +54,40 @@ public class StatisticFileLineParser {
       LocalDateTime recordTime, String subscriberCountString) {
     var subscriberCount = parseNumber(subscriberCountString, () -> 0).intValue();
 
-    return new SubscriberRecord(recordTime, subscriberCount);
+    return SubscriberRecord.builder()
+        .recordTime(recordTime)
+        .subscriberCount(subscriberCount)
+        .build();
   }
 
   private LeaverRecord parseLeaverRecord(LocalDateTime recordTime, String subscriberCountString) {
     var leaverCount = parseNumber(subscriberCountString, () -> 0).intValue();
 
-    return new LeaverRecord(recordTime, leaverCount);
+    return LeaverRecord.builder().recordTime(recordTime).leaverCount(leaverCount).build();
   }
 
   private PaymentAmountRecord parsePaymentAmountRecord(
       LocalDateTime recordTime, String paymentAmountString) {
     var paymentAmount = parseNumber(paymentAmountString, () -> 0).longValue();
 
-    return new PaymentAmountRecord(recordTime, paymentAmount);
+    return PaymentAmountRecord.builder()
+        .recordTime(recordTime)
+        .paymentAmount(paymentAmount)
+        .build();
   }
 
   private UsageAmountRecord parseUsageAmountRecord(
       LocalDateTime recordTime, String usageAmountString) {
-    var salesAmount = parseNumber(usageAmountString, () -> 0).longValue();
+    var usageAmount = parseNumber(usageAmountString, () -> 0).longValue();
 
-    return new UsageAmountRecord(recordTime, salesAmount);
+    return UsageAmountRecord.builder().recordTime(recordTime).usageAmount(usageAmount).build();
   }
 
   private SalesAmountRecord parseSalesAmountRecord(
       LocalDateTime recordTime, String salesAmountString) {
     var salesAmount = parseNumber(salesAmountString, () -> 0).longValue();
 
-    return new SalesAmountRecord(recordTime, salesAmount);
+    return SalesAmountRecord.builder().recordTime(recordTime).salesAmount(salesAmount).build();
   }
 
   private Number parseNumber(String numberString, Supplier<Number> parseFailThen) {

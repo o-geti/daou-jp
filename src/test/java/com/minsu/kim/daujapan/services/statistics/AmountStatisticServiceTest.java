@@ -54,7 +54,7 @@ class AmountStatisticServiceTest {
         .willReturn(TestDummy.findPaymentAmountStatisticEntitySuit());
 
     // when
-    var paymentAmountRecord = TestDummy.findPaymentAmountRecordSuit();
+    var paymentAmountRecord = TestDummy.createPaymentAmountRecordSuit();
     var savedPaymentAmountStatistic =
         amountStatisticService.savePaymentAmountStatistic(paymentAmountRecord);
 
@@ -76,7 +76,7 @@ class AmountStatisticServiceTest {
         .willReturn(TestDummy.findUsageAmountStatisticEntitySuit());
 
     // when
-    var usageAmountRecord = TestDummy.findUsageAmountRecordSuit();
+    var usageAmountRecord = TestDummy.createUsageAmountRecordSuit();
     var savedUsageAmountStatistic =
         amountStatisticService.saveUsageAmountStatistic(usageAmountRecord);
 
@@ -96,7 +96,7 @@ class AmountStatisticServiceTest {
         .willReturn(TestDummy.findSalesAmountStatisticEntitySuit());
 
     // when
-    var salesAmountRecord = TestDummy.findSalesAmountRecordSuit();
+    var salesAmountRecord = TestDummy.createSalesAmountRecordSuit();
     var saveSalesAmountStatistic =
         amountStatisticService.saveSalesAmountStatistic(salesAmountRecord);
 
@@ -115,10 +115,10 @@ class AmountStatisticServiceTest {
       return new PaymentAmountStatisticEntity(1L, datetime, 10_000L);
     }
 
-    public static PaymentAmountRecord findPaymentAmountRecordSuit() {
+    public static PaymentAmountRecord createPaymentAmountRecordSuit() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return new PaymentAmountRecord(datetime, 10_000L);
+      return new PaymentAmountRecord(null, datetime, 10_000L);
     }
 
     public static UsageAmountStatisticEntity findUsageAmountStatisticEntitySuit() {
@@ -127,10 +127,10 @@ class AmountStatisticServiceTest {
       return new UsageAmountStatisticEntity(1L, datetime, 10_000L);
     }
 
-    public static UsageAmountRecord findUsageAmountRecordSuit() {
+    public static UsageAmountRecord createUsageAmountRecordSuit() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return new UsageAmountRecord(datetime, 10_000L);
+      return new UsageAmountRecord(null, datetime, 10_000L);
     }
 
     public static SalesAmountStatisticEntity findSalesAmountStatisticEntitySuit() {
@@ -139,10 +139,10 @@ class AmountStatisticServiceTest {
       return new SalesAmountStatisticEntity(1L, datetime, 10_000L);
     }
 
-    public static SalesAmountRecord findSalesAmountRecordSuit() {
+    public static SalesAmountRecord createSalesAmountRecordSuit() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return new SalesAmountRecord(datetime, 10_000L);
+      return new SalesAmountRecord(null, datetime, 10_000L);
     }
   }
 }
