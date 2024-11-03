@@ -1,6 +1,7 @@
 package com.minsu.kim.daujapan.services.statistics;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.minsu.kim.daujapan.data.statistics.member.LeaverRecord;
@@ -16,6 +17,7 @@ import com.minsu.kim.daujapan.repositories.statistics.member.SubscriberStatistic
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberStatisticService {
   private final SubscriberStatisticRepository subscriberStatisticRepository;
   private final LeaverStatisticRepository leaverStatisticRepository;
@@ -26,6 +28,9 @@ public class MemberStatisticService {
   public SubscriberRecord saveSubscriberStatistic(SubscriberRecord subscriberStatistic) {
     var subscriberEntity = subscriberMapper.dtoToEntity(subscriberStatistic);
     var savedEntity = subscriberStatisticRepository.save(subscriberEntity);
+
+    log.debug("dtoToEntity: {}", subscriberStatistic);
+    log.debug("savedEntity: {}", savedEntity);
 
     return subscriberMapper.entityToDto(savedEntity);
   }

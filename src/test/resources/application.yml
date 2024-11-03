@@ -31,7 +31,6 @@ spring:
   sql:
     init:
       mode: always
-      schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
 
 springdoc:
@@ -46,3 +45,7 @@ schedule-file:
   extensions:
     - txt
     - csv
+logging:
+  level:
+    org.hibernate.sql: DEBUG
+    org.hibernate.type: TRACE

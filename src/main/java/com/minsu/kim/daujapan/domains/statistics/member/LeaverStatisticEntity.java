@@ -10,8 +10,10 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Comment;
 
 /**
@@ -22,6 +24,8 @@ import org.hibernate.annotations.Comment;
  */
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@ToString
 @Getter
 @Entity(name = "LeaverStatisticEntity")
 @Table(

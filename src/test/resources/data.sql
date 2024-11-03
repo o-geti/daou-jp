@@ -1,1 +1,1 @@
-# none
+select 1;
