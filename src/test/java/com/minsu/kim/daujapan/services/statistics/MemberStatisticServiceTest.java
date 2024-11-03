@@ -32,8 +32,6 @@ import com.minsu.kim.daujapan.repositories.statistics.member.SubscriberStatistic
 class MemberStatisticServiceTest {
 
   @Autowired MemberStatisticService statisticService;
-  @Autowired SubscriberMapperImpl subscriberMapper;
-  @Autowired LeaverMapperImpl leaverMapper;
 
   @MockBean SubscriberStatisticRepository subscriberStatisticRepository;
   @MockBean LeaverStatisticRepository leaverStatisticRepository;
