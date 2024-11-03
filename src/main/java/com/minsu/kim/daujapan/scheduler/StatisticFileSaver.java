@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.minsu.kim.daujapan.config.FileScheduleConfig;
 import com.minsu.kim.daujapan.parser.StatisticFileLineParser;
-import com.minsu.kim.daujapan.services.statistics.AmountStatisticService;
-import com.minsu.kim.daujapan.services.statistics.MemberStatisticService;
+import com.minsu.kim.daujapan.services.statistics.StatisticService;
 import com.minsu.kim.daujapan.util.StackTraceUtil;
 
 /**
@@ -34,8 +34,7 @@ public class StatisticFileSaver {
   private final FileScheduleConfig fileScheduleConfig;
   private final StatisticFileLineParser statisticFileLineParser;
 
-  private final AmountStatisticService amountStatisticService;
-  private final MemberStatisticService memberStatisticService;
+  private final List<StatisticService<?>> statisticServices;
 
   // 매일 자정 실행, KST가 없어 같은 시간대 JST 사용
   @Scheduled(cron = "${schedule-file.job.file-saver-run}", zone = "Asia/Tokyo")
@@ -58,21 +57,14 @@ public class StatisticFileSaver {
   public void readFileStreamMode(Path filePath) {
     try (FileReader fr = new FileReader(filePath.toFile());
         BufferedReader br = new BufferedReader(fr)) {
+
       br.lines()
           .map(line -> line.split("\\|"))
           .map(statisticFileLineParser::parseLineStringArray)
           .forEach(
-              statisticRecord -> {
-                memberStatisticService.saveSubscriberStatistic(statisticRecord.subscriberRecord());
-                memberStatisticService.saveLeaverStatistic(statisticRecord.leaverRecord());
+              statisticRecord ->
+                  statisticServices.forEach(service -> service.saveStatistic(statisticRecord)));
 
-                amountStatisticService.savePaymentAmountStatistic(
-                    statisticRecord.paymentAmountRecord());
-                amountStatisticService.saveUsageAmountStatistic(
-                    statisticRecord.usageAmountRecord());
-                amountStatisticService.saveSalesAmountStatistic(
-                    statisticRecord.salesAmountRecord());
-              });
     } catch (FileNotFoundException e) {
       log.warn("파일을 찾지 못하였습니다. : {}", StackTraceUtil.filterStackTracePackage(e));
     } catch (IOException e) {
