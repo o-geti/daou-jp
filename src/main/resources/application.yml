@@ -6,8 +6,24 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+  jpa:
+    database: MYSQL
+    database-platform: org.hibernate.dialect.MySQLDialect
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url:
+
 springdoc:
     api-docs:
       path: /api-docs
     swagger-ui:
       path: /swagger-ui.html
+
+schedule-file:
+  extensions:
+    - txt
+    - csv
