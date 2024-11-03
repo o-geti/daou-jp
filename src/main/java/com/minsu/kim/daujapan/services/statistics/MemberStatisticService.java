@@ -1,7 +1,6 @@
 package com.minsu.kim.daujapan.services.statistics;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,26 +29,27 @@ public class MemberStatisticService {
   private final SubscriberMapper subscriberMapper;
   private final LeaverMapper leaverMapper;
 
-  public Paging<List<SubscriberRecord>> findSubscribeRecords(Pageable pageable) {
+  public Paging<SubscriberRecord> findSubscribeRecords(Pageable pageable) {
     var pageSubscriber = subscriberStatisticRepository.findAll(pageable);
 
     return Paging.createPaging(pageSubscriber, pageable, subscriberMapper::entityToDto);
   }
 
-  public Paging<List<SubscriberRecord>> findSubscribeRecordsByRecordDate(
+  public Paging<SubscriberRecord> findSubscribeRecordsByRecordDate(
       LocalDateTime from, LocalDateTime to, Pageable pageable) {
-    var pageSubscriber = subscriberStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
+    var pageSubscriber =
+        subscriberStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
 
     return Paging.createPaging(pageSubscriber, pageable, subscriberMapper::entityToDto);
   }
 
-  public Paging<List<LeaverRecord>> findLeaverRecords(Pageable pageable) {
+  public Paging<LeaverRecord> findLeaverRecords(Pageable pageable) {
     var pageLeaver = leaverStatisticRepository.findAll(pageable);
 
     return Paging.createPaging(pageLeaver, pageable, leaverMapper::entityToDto);
   }
 
-  public Paging<List<LeaverRecord>> findLeaverRecordsByRecordDate(
+  public Paging<LeaverRecord> findLeaverRecordsByRecordDate(
       LocalDateTime from, LocalDateTime to, Pageable pageable) {
     var pageLeaver = leaverStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
 

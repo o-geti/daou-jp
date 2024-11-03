@@ -13,14 +13,14 @@ import org.springframework.data.domain.Pageable;
  * @since 1.0
  */
 public record Paging<T>(
-    T content,
+    List<T> content,
     int pageNumber,
     int pageSize,
     int totalPageNumber,
     boolean hasNext,
     boolean hasPrevious) {
 
-  public static <T, R> Paging<List<R>> createPaging(
+  public static <T, R> Paging<R> createPaging(
       Page<T> pageResult, Pageable pageable, Function<T, R> contentConverter) {
     var currentPage = pageable.getPageNumber();
     var totalPage = pageResult.getTotalPages();
