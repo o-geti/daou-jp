@@ -17,6 +17,6 @@ import com.minsu.kim.daujapan.domains.statistics.member.LeaverStatisticEntity;
  */
 @Repository
 public interface LeaverStatisticRepository extends JpaRepository<LeaverStatisticEntity, Long> {
-  Page<LeaverStatisticEntity> findByRecordTimeBetween(
+  Page<LeaverStatisticEntity> findAllByRecordTimeBetween(
       LocalDateTime searchFrom, LocalDateTime searchTo, Pageable pageable);
 }

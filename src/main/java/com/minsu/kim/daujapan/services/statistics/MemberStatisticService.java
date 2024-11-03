@@ -1,9 +1,14 @@
 package com.minsu.kim.daujapan.services.statistics;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.minsu.kim.daujapan.data.response.Paging;
 import com.minsu.kim.daujapan.data.statistics.member.LeaverRecord;
 import com.minsu.kim.daujapan.data.statistics.member.SubscriberRecord;
 import com.minsu.kim.daujapan.mapper.statistics.member.LeaverMapper;
@@ -24,6 +29,32 @@ public class MemberStatisticService {
 
   private final SubscriberMapper subscriberMapper;
   private final LeaverMapper leaverMapper;
+
+  public Paging<List<SubscriberRecord>> findSubscribeRecords(Pageable pageable) {
+    var pageSubscriber = subscriberStatisticRepository.findAll(pageable);
+
+    return Paging.createPaging(pageSubscriber, pageable, subscriberMapper::entityToDto);
+  }
+
+  public Paging<List<SubscriberRecord>> findSubscribeRecordsByRecordDate(
+      LocalDateTime from, LocalDateTime to, Pageable pageable) {
+    var pageSubscriber = subscriberStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
+
+    return Paging.createPaging(pageSubscriber, pageable, subscriberMapper::entityToDto);
+  }
+
+  public Paging<List<LeaverRecord>> findLeaverRecords(Pageable pageable) {
+    var pageLeaver = leaverStatisticRepository.findAll(pageable);
+
+    return Paging.createPaging(pageLeaver, pageable, leaverMapper::entityToDto);
+  }
+
+  public Paging<List<LeaverRecord>> findLeaverRecordsByRecordDate(
+      LocalDateTime from, LocalDateTime to, Pageable pageable) {
+    var pageLeaver = leaverStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
+
+    return Paging.createPaging(pageLeaver, pageable, leaverMapper::entityToDto);
+  }
 
   public SubscriberRecord saveSubscriberStatistic(SubscriberRecord subscriberStatistic) {
     var subscriberEntity = subscriberMapper.dtoToEntity(subscriberStatistic);

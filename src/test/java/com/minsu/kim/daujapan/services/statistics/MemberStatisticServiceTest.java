@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 
 import java.time.LocalDateTime;
 
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,10 @@ import com.minsu.kim.daujapan.mapper.statistics.member.LeaverMapperImpl;
 import com.minsu.kim.daujapan.mapper.statistics.member.SubscriberMapperImpl;
 import com.minsu.kim.daujapan.repositories.statistics.member.LeaverStatisticRepository;
 import com.minsu.kim.daujapan.repositories.statistics.member.SubscriberStatisticRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 /**
  * @author minsu.kim
@@ -35,6 +40,110 @@ class MemberStatisticServiceTest {
 
   @MockBean SubscriberStatisticRepository subscriberStatisticRepository;
   @MockBean LeaverStatisticRepository leaverStatisticRepository;
+
+  @Test
+  @DisplayName("가입자 정보를 페이징하여 반환한다.")
+  void findSubscribeRecords() {
+    // given
+    given(subscriberStatisticRepository.findAll(any(Pageable.class)))
+        .willReturn(TestDummy.findAllSubscriberStatisticEntity());
+
+    // when
+    var pageRequest = PageRequest.of(0, 3);
+    var pagingSubscriberRecords = statisticService.findSubscribeRecords(pageRequest);
+
+    // then
+    var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    then(subscriberStatisticRepository).should(times(1)).findAll(any(Pageable.class));
+    assertThat(pagingSubscriberRecords.content()).hasSize(3);
+    assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
+    assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
+    assertThat(pagingSubscriberRecords.content().getFirst().subscriberCount()).isEqualTo(1);
+    assertThat(pagingSubscriberRecords.pageNumber()).isZero();
+    assertThat(pagingSubscriberRecords.hasNext()).isFalse();
+    assertThat(pagingSubscriberRecords.hasPrevious()).isFalse();
+  }
+
+  @Test
+  @DisplayName("가입자 정보를 날짜 필터링하고, 페이징하여 반환한다.")
+  void findSubscribeRecordsByRecordDate() {
+    // given
+    given(subscriberStatisticRepository.findAllByRecordTimeBetween(
+        any(LocalDateTime.class),
+        any(LocalDateTime.class),
+        any(Pageable.class)))
+        .willReturn(TestDummy.findAllSubscriberStatisticEntity());
+
+    // when
+    var searchFrom = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    var searchTo = searchFrom.plusDays(2L);
+    var pageRequest = PageRequest.of(0, 3);
+    var pagingSubscriberRecords = statisticService.findSubscribeRecordsByRecordDate(searchFrom, searchTo, pageRequest);
+
+    // then
+    var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    then(subscriberStatisticRepository).should(times(1)).findAllByRecordTimeBetween(
+        searchFrom, searchTo, pageRequest
+    );
+    assertThat(pagingSubscriberRecords.content()).hasSize(3);
+    assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
+    assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
+    assertThat(pagingSubscriberRecords.content().getFirst().subscriberCount()).isEqualTo(1);
+    assertThat(pagingSubscriberRecords.pageNumber()).isZero();
+    assertThat(pagingSubscriberRecords.hasNext()).isFalse();
+    assertThat(pagingSubscriberRecords.hasPrevious()).isFalse();
+  }
+
+  @Test
+  @DisplayName("탈퇴자 정보를 페이징하여 반환한다.")
+  void findLeaverRecords() {
+    // given
+        given(leaverStatisticRepository.findAll(any(Pageable.class)))
+            .willReturn(TestDummy.findAllLeaverStatisticEntity());
+
+    // when
+    var pageRequest = PageRequest.of(0, 3);
+    var pagingSubscriberRecords = statisticService.findLeaverRecords(pageRequest);
+
+    // then
+    var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    then(leaverStatisticRepository).should(times(1)).findAll(pageRequest);
+    assertThat(pagingSubscriberRecords.content()).hasSize(3);
+    assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
+    assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
+    assertThat(pagingSubscriberRecords.content().getFirst().leaverCount()).isEqualTo(1);
+    assertThat(pagingSubscriberRecords.pageNumber()).isZero();
+    assertThat(pagingSubscriberRecords.hasNext()).isFalse();
+    assertThat(pagingSubscriberRecords.hasPrevious()).isFalse();
+  }
+
+  @Test
+  @DisplayName("탈퇴자 정보를 날짜로 필터링하고 페이징하여 반환한다.")
+  void findLeaverRecordsByRecordDate() {
+    // given
+    given(leaverStatisticRepository.findAllByRecordTimeBetween(
+        any(LocalDateTime.class),
+        any(LocalDateTime.class),
+        any(Pageable.class)))
+        .willReturn(TestDummy.findAllLeaverStatisticEntity());
+
+    // when
+    var searchFrom = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    var searchTo = searchFrom.plusDays(2L);
+    var pageRequest = PageRequest.of(0, 3);
+    var pagingSubscriberRecords = statisticService.findLeaverRecordsByRecordDate(searchFrom, searchTo, pageRequest);
+
+    // then
+    var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    then(leaverStatisticRepository).should(times(1)).findAllByRecordTimeBetween(searchFrom, searchTo, pageRequest);
+    assertThat(pagingSubscriberRecords.content()).hasSize(3);
+    assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
+    assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
+    assertThat(pagingSubscriberRecords.content().getFirst().leaverCount()).isEqualTo(1);
+    assertThat(pagingSubscriberRecords.pageNumber()).isZero();
+    assertThat(pagingSubscriberRecords.hasNext()).isFalse();
+    assertThat(pagingSubscriberRecords.hasPrevious()).isFalse();
+  }
 
   @Test
   @DisplayName("가입자 수에대한 데이터가 입력으로 들어오면 데이터베이스에 저장한다.")
@@ -94,6 +203,33 @@ class MemberStatisticServiceTest {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
       return new LeaverRecord(null, datetime, 10);
+    }
+
+    public static Page<SubscriberStatisticEntity> findAllSubscriberStatisticEntity() {
+      var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+
+      var elem1 = SubscriberStatisticEntity.builder().id(1L).recordTime(datetime).subscriberCount(1).build();
+      var elem2 =
+          SubscriberStatisticEntity.builder().id(2L).recordTime(datetime.plusDays(1L)).subscriberCount(2).build();
+      var elem3 =
+          SubscriberStatisticEntity.builder().id(3L).recordTime(datetime.plusDays(2L)).subscriberCount(3).build();
+
+      var pageRequest = PageRequest.of(0, 3);
+      return (new PageImpl<>(List.of(elem1, elem2, elem3), pageRequest, 3));
+    }
+
+    public static Page<LeaverStatisticEntity> findAllLeaverStatisticEntity() {
+      var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+
+      var elem1 = LeaverStatisticEntity.builder().id(1L).recordTime(datetime).leaverCount(1).build();
+      var elem2 =
+          LeaverStatisticEntity.builder().id(2L).recordTime(datetime.plusDays(1L)).leaverCount(2).build();
+      var elem3 =
+          LeaverStatisticEntity.builder().id(3L).recordTime(datetime.plusDays(2L)).leaverCount(3).build();
+
+      var pageRequest = PageRequest.of(0, 3);
+
+      return (new PageImpl<>(List.of(elem1, elem2, elem3), pageRequest, 3));
     }
   }
 }

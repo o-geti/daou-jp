@@ -19,6 +19,6 @@ import com.minsu.kim.daujapan.domains.statistics.member.SubscriberStatisticEntit
 public interface SubscriberStatisticRepository
     extends JpaRepository<SubscriberStatisticEntity, Long> {
 
-  Page<SubscriberStatisticEntity> findByRecordTimeBetween(
+  Page<SubscriberStatisticEntity> findAllByRecordTimeBetween(
       LocalDateTime searchFrom, LocalDateTime searchTo, Pageable pageable);
 }

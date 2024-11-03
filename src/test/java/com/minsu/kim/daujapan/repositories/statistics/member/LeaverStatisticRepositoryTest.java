@@ -28,7 +28,7 @@ class LeaverStatisticRepositoryTest {
     var searchTo = LocalDateTime.of(2024, 10, 28, 21, 0, 0);
     Pageable pageable = PageRequest.of(0, 5);
 
-    var result = repository.findByRecordTimeBetween(searchFrom, searchTo, pageable);
+    var result = repository.findAllByRecordTimeBetween(searchFrom, searchTo, pageable);
 
     assertThat(result.getContent()).hasSize(5);
     assertThat(result.getTotalPages()).isEqualTo(5); // (24 / 5) + ((24 % 5) > 0 ? 1 : 0)
