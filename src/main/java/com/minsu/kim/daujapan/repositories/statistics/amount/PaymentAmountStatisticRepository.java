@@ -18,6 +18,6 @@ import com.minsu.kim.daujapan.domains.statistics.amount.PaymentAmountStatisticEn
 @Repository
 public interface PaymentAmountStatisticRepository
     extends JpaRepository<PaymentAmountStatisticEntity, Long> {
-  Page<PaymentAmountStatisticEntity> findByRecordTimeBetween(
+  Page<PaymentAmountStatisticEntity> findAllByRecordTimeBetween(
       LocalDateTime searchFrom, LocalDateTime searchTo, Pageable pageable);
 }

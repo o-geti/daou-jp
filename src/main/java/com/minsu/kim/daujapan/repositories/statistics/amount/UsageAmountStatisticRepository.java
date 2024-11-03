@@ -18,6 +18,6 @@ import com.minsu.kim.daujapan.domains.statistics.amount.UsageAmountStatisticEnti
 @Repository
 public interface UsageAmountStatisticRepository
     extends JpaRepository<UsageAmountStatisticEntity, Long> {
-  Page<UsageAmountStatisticEntity> findByRecordTimeBetween(
+  Page<UsageAmountStatisticEntity> findAllByRecordTimeBetween(
       LocalDateTime searchFrom, LocalDateTime searchTo, Pageable pageable);
 }

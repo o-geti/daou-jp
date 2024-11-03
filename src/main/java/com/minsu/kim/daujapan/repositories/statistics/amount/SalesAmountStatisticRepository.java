@@ -18,6 +18,6 @@ import com.minsu.kim.daujapan.domains.statistics.amount.SalesAmountStatisticEnti
 @Repository
 public interface SalesAmountStatisticRepository
     extends JpaRepository<SalesAmountStatisticEntity, Long> {
-  Page<SalesAmountStatisticEntity> findByRecordTimeBetween(
+  Page<SalesAmountStatisticEntity> findAllByRecordTimeBetween(
       LocalDateTime searchFrom, LocalDateTime searchTo, Pageable pageable);
 }
