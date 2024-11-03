@@ -7,12 +7,16 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import com.minsu.kim.daujapan.data.statistics.amount.PaymentAmountRecord;
 import com.minsu.kim.daujapan.data.statistics.amount.SalesAmountRecord;
@@ -26,6 +30,7 @@ import com.minsu.kim.daujapan.mapper.statistics.amount.UsageAmountMapperImpl;
 import com.minsu.kim.daujapan.repositories.statistics.amount.PaymentAmountStatisticRepository;
 import com.minsu.kim.daujapan.repositories.statistics.amount.SalesAmountStatisticRepository;
 import com.minsu.kim.daujapan.repositories.statistics.amount.UsageAmountStatisticRepository;
+import org.springframework.data.domain.Pageable;
 
 /**
  * @author minsu.kim
@@ -45,6 +50,167 @@ class AmountStatisticServiceTest {
   @MockBean PaymentAmountStatisticRepository paymentAmountStatisticRepository;
   @MockBean UsageAmountStatisticRepository usageAmountStatisticRepository;
   @MockBean SalesAmountStatisticRepository salesAmountStatisticRepository;
+
+
+  @Test
+  @DisplayName("결제금액 정보를 페이징하여 반환한다.")
+  void findSubscribeRecords() {
+    // given
+    given(paymentAmountStatisticRepository.findAll(any(Pageable.class)))
+        .willReturn(TestDummy.findAllPaymentAmountStatisticEntity());
+
+    // when
+    var pageRequest = PageRequest.of(0, 3);
+    var pagingSubscriberRecords = amountStatisticService.findPaymentAmountRecords(pageRequest);
+
+    // then
+    var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    then(paymentAmountStatisticRepository).should(times(1)).findAll(any(Pageable.class));
+    assertThat(pagingSubscriberRecords.content()).hasSize(3);
+    assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
+    assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
+    assertThat(pagingSubscriberRecords.content().getFirst().paymentAmount()).isEqualTo(1_000_000L);
+    assertThat(pagingSubscriberRecords.pageNumber()).isZero();
+    assertThat(pagingSubscriberRecords.hasNext()).isFalse();
+    assertThat(pagingSubscriberRecords.hasPrevious()).isFalse();
+  }
+
+  @Test
+  @DisplayName("결제금액 정보를 날짜 필터링하고, 페이징하여 반환한다.")
+  void findSubscribeRecordsByRecordDate() {
+    // given
+    given(
+        paymentAmountStatisticRepository.findAllByRecordTimeBetween(
+            any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
+        .willReturn(TestDummy.findAllPaymentAmountStatisticEntity());
+
+    // when
+    var searchFrom = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    var searchTo = searchFrom.plusDays(2L);
+    var pageRequest = PageRequest.of(0, 3);
+    var pagingSubscriberRecords =
+        amountStatisticService.findPaymentAmountRecordsByRecordDate(searchFrom, searchTo, pageRequest);
+
+    // then
+    var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    then(paymentAmountStatisticRepository)
+        .should(times(1))
+        .findAllByRecordTimeBetween(searchFrom, searchTo, pageRequest);
+    assertThat(pagingSubscriberRecords.content()).hasSize(3);
+    assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
+    assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
+    assertThat(pagingSubscriberRecords.content().getFirst().paymentAmount()).isEqualTo(1_000_000);
+    assertThat(pagingSubscriberRecords.pageNumber()).isZero();
+    assertThat(pagingSubscriberRecords.hasNext()).isFalse();
+    assertThat(pagingSubscriberRecords.hasPrevious()).isFalse();
+  }
+
+  @Test
+  @DisplayName("사용금액 정보를 페이징하여 반환한다.")
+  void findUsageAmountRecords() {
+    // given
+    var dummy = TestDummy.findAllUsageAmountStatisticEntity();
+    given(usageAmountStatisticRepository.findAll(any(Pageable.class)))
+        .willReturn(dummy);
+
+    // when
+    var pageRequest = PageRequest.of(0, 3);
+    var pagingSubscriberRecords = amountStatisticService.findUsageAmountRecords(pageRequest);
+
+    // then
+    var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    then(usageAmountStatisticRepository).should(times(1)).findAll(pageRequest);
+    assertThat(pagingSubscriberRecords.content()).hasSize(3);
+    assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
+    assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
+    assertThat(pagingSubscriberRecords.content().getFirst().usageAmount()).isEqualTo(10_000);
+    assertThat(pagingSubscriberRecords.pageNumber()).isZero();
+    assertThat(pagingSubscriberRecords.hasNext()).isFalse();
+    assertThat(pagingSubscriberRecords.hasPrevious()).isFalse();
+  }
+
+  @Test
+  @DisplayName("사용금액 정보를 날짜로 필터링하고 페이징하여 반환한다.")
+  void findUsageAmountRecordsByRecordDate() {
+    // given
+    given(
+        usageAmountStatisticRepository.findAllByRecordTimeBetween(
+            any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
+        .willReturn(TestDummy.findAllUsageAmountStatisticEntity());
+
+    // when
+    var searchFrom = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    var searchTo = searchFrom.plusDays(2L);
+    var pageRequest = PageRequest.of(0, 3);
+    var pagingSubscriberRecords =
+        amountStatisticService.findUsageAmountRecordsByRecordDate(searchFrom, searchTo, pageRequest);
+
+    // then
+    var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    then(usageAmountStatisticRepository)
+        .should(times(1))
+        .findAllByRecordTimeBetween(searchFrom, searchTo, pageRequest);
+    assertThat(pagingSubscriberRecords.content()).hasSize(3);
+    assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
+    assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
+    assertThat(pagingSubscriberRecords.content().getFirst().usageAmount()).isEqualTo(10_000);
+    assertThat(pagingSubscriberRecords.pageNumber()).isZero();
+    assertThat(pagingSubscriberRecords.hasNext()).isFalse();
+    assertThat(pagingSubscriberRecords.hasPrevious()).isFalse();
+  }
+
+  @Test
+  @DisplayName("매출금액 정보를 페이징하여 반환한다.")
+  void findSalesAmountRecords() {
+    // given
+    given(salesAmountStatisticRepository.findAll(any(Pageable.class)))
+        .willReturn(TestDummy.findAllSalesAmountStatisticEntity());
+
+    // when
+    var pageRequest = PageRequest.of(0, 3);
+    var pagingSubscriberRecords = amountStatisticService.findSalesAmountRecords(pageRequest);
+
+    // then
+    var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    then(salesAmountStatisticRepository).should(times(1)).findAll(pageRequest);
+    assertThat(pagingSubscriberRecords.content()).hasSize(3);
+    assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
+    assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
+    assertThat(pagingSubscriberRecords.content().getFirst().salesAmount()).isEqualTo(1_000_000L);
+    assertThat(pagingSubscriberRecords.pageNumber()).isZero();
+    assertThat(pagingSubscriberRecords.hasNext()).isFalse();
+    assertThat(pagingSubscriberRecords.hasPrevious()).isFalse();
+  }
+
+  @Test
+  @DisplayName("매출금액 정보를 날짜로 필터링하고 페이징하여 반환한다.")
+  void findSalesAmountRecordsByRecordDate() {
+    // given
+    given(
+        salesAmountStatisticRepository.findAllByRecordTimeBetween(
+            any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
+        .willReturn(TestDummy.findAllSalesAmountStatisticEntity());
+
+    // when
+    var searchFrom = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    var searchTo = searchFrom.plusDays(2L);
+    var pageRequest = PageRequest.of(0, 3);
+    var pagingSubscriberRecords =
+        amountStatisticService.findSalesAmountRecordsByRecordDate(searchFrom, searchTo, pageRequest);
+
+    // then
+    var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+    then(salesAmountStatisticRepository)
+        .should(times(1))
+        .findAllByRecordTimeBetween(searchFrom, searchTo, pageRequest);
+    assertThat(pagingSubscriberRecords.content()).hasSize(3);
+    assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
+    assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
+    assertThat(pagingSubscriberRecords.content().getFirst().salesAmount()).isEqualTo(1_000_000L);
+    assertThat(pagingSubscriberRecords.pageNumber()).isZero();
+    assertThat(pagingSubscriberRecords.hasNext()).isFalse();
+    assertThat(pagingSubscriberRecords.hasPrevious()).isFalse();
+  }
 
   @Test
   @DisplayName("결제금액 데이터가 입력으로 들어오면 데이터베이스에 저장한다.")
@@ -143,6 +309,85 @@ class AmountStatisticServiceTest {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
       return new SalesAmountRecord(null, datetime, 10_000L);
+    }
+
+    public static Page<PaymentAmountStatisticEntity> findAllPaymentAmountStatisticEntity() {
+      var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+
+      var elem1 =
+          PaymentAmountStatisticEntity.builder()
+              .id(1L)
+              .recordTime(datetime)
+              .paymentAmount(1_000_000L)
+              .build();
+      var elem2 =
+          PaymentAmountStatisticEntity.builder()
+              .id(2L)
+              .recordTime(datetime.plusDays(1L))
+              .paymentAmount(1_100_000L)
+              .build();
+      var elem3 =
+          PaymentAmountStatisticEntity.builder()
+              .id(3L)
+              .recordTime(datetime.plusDays(2L))
+              .paymentAmount(1_200_000L)
+              .build();
+
+      var pageRequest = PageRequest.of(0, 3);
+      return (new PageImpl<>(List.of(elem1, elem2, elem3), pageRequest, 3));
+    }
+
+    public static Page<UsageAmountStatisticEntity> findAllUsageAmountStatisticEntity() {
+      var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+
+      var elem1 =
+          UsageAmountStatisticEntity.builder()
+              .id(1L)
+              .recordTime(datetime)
+              .usageAmount(10_000L)
+              .build();
+      var elem2 =
+          UsageAmountStatisticEntity.builder()
+              .id(2L)
+              .recordTime(datetime.plusDays(1L))
+              .usageAmount(11_000L)
+              .build();
+      var elem3 =
+          UsageAmountStatisticEntity.builder()
+              .id(3L)
+              .recordTime(datetime.plusDays(2L))
+              .usageAmount(12_000L)
+              .build();
+
+      var pageRequest = PageRequest.of(0, 3);
+
+      return (new PageImpl<>(List.of(elem1, elem2, elem3), pageRequest, 3));
+    }
+
+    public static Page<SalesAmountStatisticEntity> findAllSalesAmountStatisticEntity() {
+      var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+
+      var elem1 =
+          SalesAmountStatisticEntity.builder()
+              .id(1L)
+              .recordTime(datetime)
+              .salesAmount(1_000_000L)
+              .build();
+      var elem2 =
+          SalesAmountStatisticEntity.builder()
+              .id(2L)
+              .recordTime(datetime.plusDays(1L))
+              .salesAmount(2_100_000L)
+              .build();
+      var elem3 =
+          SalesAmountStatisticEntity.builder()
+              .id(3L)
+              .recordTime(datetime.plusDays(2L))
+              .salesAmount(3_300_000L)
+              .build();
+
+      var pageRequest = PageRequest.of(0, 3);
+      return (new PageImpl<>(List.of(elem1, elem2, elem3), pageRequest, 3));
     }
   }
 }

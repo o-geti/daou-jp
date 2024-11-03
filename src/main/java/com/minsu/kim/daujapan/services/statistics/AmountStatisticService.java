@@ -1,8 +1,12 @@
 package com.minsu.kim.daujapan.services.statistics;
 
+import java.time.LocalDateTime;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.minsu.kim.daujapan.data.response.Paging;
 import com.minsu.kim.daujapan.data.statistics.amount.PaymentAmountRecord;
 import com.minsu.kim.daujapan.data.statistics.amount.SalesAmountRecord;
 import com.minsu.kim.daujapan.data.statistics.amount.UsageAmountRecord;
@@ -28,6 +32,46 @@ public class AmountStatisticService {
   private final PaymentAmountMapper paymentAmountMapper;
   private final UsageAmountMapper usageAmountMapper;
   private final SalesAmountMapper salesAmountMapper;
+
+  public Paging<PaymentAmountRecord> findPaymentAmountRecords(Pageable pageable) {
+    var pageSubscriber = paymentAmountStatisticRepository.findAll(pageable);
+
+    return Paging.createPaging(pageSubscriber, pageable, paymentAmountMapper::entityToDto);
+  }
+
+  public Paging<PaymentAmountRecord> findPaymentAmountRecordsByRecordDate(
+      LocalDateTime from, LocalDateTime to, Pageable pageable) {
+    var pageSubscriber =
+        paymentAmountStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
+
+    return Paging.createPaging(pageSubscriber, pageable, paymentAmountMapper::entityToDto);
+  }
+
+  public Paging<UsageAmountRecord> findUsageAmountRecords(Pageable pageable) {
+    var pageLeaver = usageAmountStatisticRepository.findAll(pageable);
+
+    return Paging.createPaging(pageLeaver, pageable, usageAmountMapper::entityToDto);
+  }
+
+  public Paging<UsageAmountRecord> findUsageAmountRecordsByRecordDate(
+      LocalDateTime from, LocalDateTime to, Pageable pageable) {
+    var pageLeaver = usageAmountStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
+
+    return Paging.createPaging(pageLeaver, pageable, usageAmountMapper::entityToDto);
+  }
+
+  public Paging<SalesAmountRecord> findSalesAmountRecords(Pageable pageable) {
+    var pageLeaver = salesAmountStatisticRepository.findAll(pageable);
+
+    return Paging.createPaging(pageLeaver, pageable, salesAmountMapper::entityToDto);
+  }
+
+  public Paging<SalesAmountRecord> findSalesAmountRecordsByRecordDate(
+      LocalDateTime from, LocalDateTime to, Pageable pageable) {
+    var pageLeaver = salesAmountStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
+
+    return Paging.createPaging(pageLeaver, pageable, salesAmountMapper::entityToDto);
+  }
 
   public PaymentAmountRecord savePaymentAmountStatistic(PaymentAmountRecord paymentAmountRecord) {
     var paymentAmountStatisticEntity = paymentAmountMapper.dtoToEntity(paymentAmountRecord);
