@@ -16,7 +16,7 @@ public record Paging<T>(
     List<T> content,
     int pageNumber,
     int pageSize,
-    int totalPageNumber,
+    int totalPageCount,
     boolean hasNext,
     boolean hasPrevious) {
 

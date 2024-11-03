@@ -16,9 +16,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.minsu.kim.daujapan.config.FileScheduleConfig;
+import com.minsu.kim.daujapan.helper.StackTraceUtil;
 import com.minsu.kim.daujapan.parser.StatisticFileLineParser;
 import com.minsu.kim.daujapan.services.statistics.StatisticService;
-import com.minsu.kim.daujapan.util.StackTraceUtil;
 
 /**
  * 커머스 파일 대상을 저장하는 객체입니다.

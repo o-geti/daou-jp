@@ -22,7 +22,19 @@ public record CommonResponse<T>(int status, T data) {
     return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), data);
   }
 
+  public static <T> CommonResponse<T> responseNotFound(T data) {
+    return new CommonResponse<>(HttpStatus.NOT_FOUND.value(), data);
+  }
+
+  public static <T> CommonResponse<T> responseNotAllow(T data) {
+    return new CommonResponse<>(HttpStatus.METHOD_NOT_ALLOWED.value(), data);
+  }
+
   public static <T> CommonResponse<T> responseConflict(T data) {
     return new CommonResponse<>(HttpStatus.CONFLICT.value(), data);
+  }
+
+  public static <T> CommonResponse<T> responseServerError(T data) {
+    return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), data);
   }
 }
