@@ -15,12 +15,12 @@ import lombok.NoArgsConstructor;
  */
 @Builder
 public record LeaverRecord(Long id, LocalDateTime recordTime, int leaverCount) {
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Filter {
-        LocalDateTime searchFrom;
-        LocalDateTime searchTo;
-    }
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class Filter {
+    LocalDateTime searchFrom;
+    LocalDateTime searchTo;
+  }
 }

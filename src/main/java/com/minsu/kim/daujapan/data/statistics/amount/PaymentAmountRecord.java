@@ -15,12 +15,12 @@ import lombok.NoArgsConstructor;
  */
 @Builder
 public record PaymentAmountRecord(Long id, LocalDateTime recordTime, long paymentAmount) {
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Filter {
-        LocalDateTime searchFrom;
-        LocalDateTime searchTo;
-    }
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class Filter {
+    LocalDateTime searchFrom;
+    LocalDateTime searchTo;
+  }
 }

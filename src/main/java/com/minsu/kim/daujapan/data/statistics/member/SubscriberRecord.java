@@ -16,12 +16,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public record SubscriberRecord(Long id, LocalDateTime recordTime, int subscriberCount) {
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Filter {
-        LocalDateTime searchFrom;
-        LocalDateTime searchTo;
-    }
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class Filter {
+    LocalDateTime searchFrom;
+    LocalDateTime searchTo;
+  }
 }
