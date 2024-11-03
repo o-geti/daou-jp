@@ -52,10 +52,5 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
   }
 
   @Override
-  public LeaverRecord updateStatistic(LeaverRecord statistic) {
-    return null;
-  }
-
-  @Override
   public void deleteStatistic(LeaverRecord statistic) {}
 }

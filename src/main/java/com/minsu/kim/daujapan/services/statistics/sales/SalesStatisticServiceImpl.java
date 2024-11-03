@@ -53,10 +53,5 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
   }
 
   @Override
-  public SalesAmountRecord updateStatistic(SalesAmountRecord statistic) {
-    return null;
-  }
-
-  @Override
   public void deleteStatistic(SalesAmountRecord statistic) {}
 }

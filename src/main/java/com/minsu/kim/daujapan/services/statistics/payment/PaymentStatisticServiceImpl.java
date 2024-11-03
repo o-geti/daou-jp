@@ -53,10 +53,5 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
   }
 
   @Override
-  public PaymentAmountRecord updateStatistic(PaymentAmountRecord statistic) {
-    return null;
-  }
-
-  @Override
   public void deleteStatistic(PaymentAmountRecord statistic) {}
 }

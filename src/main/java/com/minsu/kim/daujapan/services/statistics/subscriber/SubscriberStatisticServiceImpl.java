@@ -53,10 +53,5 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
   }
 
   @Override
-  public SubscriberRecord updateStatistic(SubscriberRecord statistic) {
-    return null;
-  }
-
-  @Override
   public void deleteStatistic(SubscriberRecord statistic) {}
 }

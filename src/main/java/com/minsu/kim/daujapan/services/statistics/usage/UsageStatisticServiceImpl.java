@@ -58,10 +58,5 @@ public class UsageStatisticServiceImpl implements StatisticService<UsageAmountRe
   }
 
   @Override
-  public UsageAmountRecord updateStatistic(UsageAmountRecord statistic) {
-    return null;
-  }
-
-  @Override
   public void deleteStatistic(UsageAmountRecord statistic) {}
 }
