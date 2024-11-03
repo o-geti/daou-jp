@@ -19,4 +19,10 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "schedule-file")
 public class FileScheduleConfig {
   private List<String> extensions;
+  private Job job;
+
+  @Data
+  public static class Job {
+    private String fileSaverRun;
+  }
 }
