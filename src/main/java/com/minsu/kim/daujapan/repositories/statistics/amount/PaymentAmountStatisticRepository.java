@@ -1,16 +1,16 @@
 package com.minsu.kim.daujapan.repositories.statistics.amount;
 
-import com.minsu.kim.daujapan.domain.statistics.amount.PaymentAmountStatisticEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.minsu.kim.daujapan.domains.statistics.amount.PaymentAmountStatisticEntity;
+
 /**
- *  <p>판매금액 통계 레포지터리입니다.</p>
+ * 판매금액 통계 레포지터리입니다.
  *
  * @author minsu.kim
  * @since 1.0
  */
 @Repository
-public interface PaymentAmountStatisticRepository extends JpaRepository<PaymentAmountStatisticEntity, Long> {
-
-}
+public interface PaymentAmountStatisticRepository
+    extends JpaRepository<PaymentAmountStatisticEntity, Long> {}
