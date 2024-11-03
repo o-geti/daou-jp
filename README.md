@@ -22,3 +22,26 @@
 
 ## 테이블 설계 이미지
 ![image](https://github.com/oct-sky-out/dau-japan-project/blob/main/doc-static/table.png?raw=true)
+
+## 코드 스타일 가이드
+spotless 를 사용하여 일관된 코드 룰을 가져갑니다. <br>
+아래는 코드 룰입니다.
+1. 구글 포맷 사용
+2. import 순서는 'java' -> 'jakarta' -> '' -> 'com.minsu' 순입니다.<br>
+   '' 표시인 빈값은 기타 의존성에 대한 순서이며 영문 순입니다. 
+3. 미사용 import 제거
+4. 끝에 띄어쓰기있으면 제거.
+5. 항상 파일의 마지막 라인은 빈 라인으로 채우기
+```groovy
+spotless {
+    java {
+        googleJavaFormat('1.24.0')
+
+        importOrder 'java', 'jakarta', '', 'com.minsu'
+
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+```
