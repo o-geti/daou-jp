@@ -8,14 +8,15 @@ spring:
 
   jpa:
     database: MYSQL
-    database-platform: org.hibernate.dialect.MySQLDialect
     generate-ddl: false
     hibernate:
       ddl-auto: none
 
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:23306/test_database?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: daujapan
+    password: dau1234!
 
 springdoc:
     api-docs:
