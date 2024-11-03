@@ -1,4 +1,4 @@
-package com.minsu.kim.daujapan.records.response;
+package com.minsu.kim.daujapan.data.response;
 
 import org.springframework.http.HttpStatus;
 
