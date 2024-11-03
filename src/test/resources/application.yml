@@ -41,6 +41,8 @@ springdoc:
       path: /swagger-ui.html
 
 schedule-file:
+  job:
+    file-saver-run: 0 0 0 * * *
   extensions:
     - txt
     - csv
