@@ -14,7 +14,6 @@ import com.minsu.kim.daujapan.data.statistics.member.LeaverRecord;
 import com.minsu.kim.daujapan.data.statistics.member.SubscriberRecord;
 
 /**
- *
  * @author minsu.kim
  * @since 1.0
  */
