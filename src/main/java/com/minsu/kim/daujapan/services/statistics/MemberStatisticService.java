@@ -29,9 +29,6 @@ public class MemberStatisticService {
     var subscriberEntity = subscriberMapper.dtoToEntity(subscriberStatistic);
     var savedEntity = subscriberStatisticRepository.save(subscriberEntity);
 
-    log.debug("dtoToEntity: {}", subscriberStatistic);
-    log.debug("savedEntity: {}", savedEntity);
-
     return subscriberMapper.entityToDto(savedEntity);
   }
 

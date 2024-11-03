@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.NestedExceptionUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +18,7 @@ import com.minsu.kim.daujapan.config.FileScheduleConfig;
 import com.minsu.kim.daujapan.parser.StatisticFileLineParser;
 import com.minsu.kim.daujapan.services.statistics.AmountStatisticService;
 import com.minsu.kim.daujapan.services.statistics.MemberStatisticService;
+import com.minsu.kim.daujapan.util.StackTraceUtil;
 
 /**
  * 커머스 파일 대상을 저장하는 객체입니다.
@@ -74,11 +74,10 @@ public class StatisticFileSaver {
                     statisticRecord.salesAmountRecord());
               });
     } catch (FileNotFoundException e) {
-      log.warn("파일을 찾지 못하였습니다. : {}", e.getMessage());
-      log.error("ERROR STACKTRACE : {}", NestedExceptionUtils.getMostSpecificCause(e).getMessage());
+      log.warn("파일을 찾지 못하였습니다. : {}", StackTraceUtil.filterStackTracePackage(e));
     } catch (IOException e) {
       log.error("IO읽기 작업 도중 에러가 발생하였습니다. 에러 스택트레이스를 확인하여주세요.");
-      log.error("ERROR STACKTRACE : {}", NestedExceptionUtils.getMostSpecificCause(e).getMessage());
+      log.error("ERROR STACKTRACE : {}", StackTraceUtil.filterStackTracePackage(e));
     }
   }
 }

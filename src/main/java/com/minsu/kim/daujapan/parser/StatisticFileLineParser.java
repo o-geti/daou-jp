@@ -40,7 +40,7 @@ public class StatisticFileLineParser {
     var usageAmountRecord =
         parseUsageAmountRecord(recordTime, line[StatisticIndex.USAGE_INDEX.getIndex()]);
     var salesAmountRecord =
-        parseSalesAmountRecord(recordTime, line[StatisticIndex.PAYMENT_INDEX.getIndex()]);
+        parseSalesAmountRecord(recordTime, line[StatisticIndex.SALES_INDEX.getIndex()]);
 
     return new StatisticRecord(
         subscribeRecord, leaverRecord, paymentAmountRecord, usageAmountRecord, salesAmountRecord);
