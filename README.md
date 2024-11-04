@@ -102,3 +102,8 @@ logback 설정은 기존 상용환경과 다르게 로그 레벨을 디버깅 �
 # 프로젝트 루트에서
 ./gradlew test
 ```
+
+### 레포트 파일
+테스트 레포트 결과 파일은 아래에 있습니다.
+1. gradle 결과 레포트 html - `build/reports/tests/test/index.html`
+2. jacoco 커버리지 레포트 html - `build/reports/jacoco/test/html/index.html`
