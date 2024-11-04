@@ -17,6 +17,7 @@ import com.minsu.kim.daoujapan.data.statistics.amount.UsageAmountRecord;
 import com.minsu.kim.daoujapan.data.statistics.member.LeaverRecord;
 import com.minsu.kim.daoujapan.data.statistics.member.SubscriberRecord;
 import com.minsu.kim.daoujapan.enums.StatisticIndex;
+import com.minsu.kim.daoujapan.helper.StackTraceUtil;
 
 /**
  * 파일 통계 라인 1줄 데이터를 자바 데이터로 변환하는 객체입니다.
@@ -48,6 +49,10 @@ public class StatisticFileLineParser {
       return new StatisticRecord(
           subscribeRecord, leaverRecord, paymentAmountRecord, usageAmountRecord, salesAmountRecord);
     } catch (DateTimeParseException e) {
+      log.info(
+          "파일의 내용 중 올바르지못한 날짜 형식이 있습니다. {} ", line[StatisticIndex.RECORD_TIME_INDEX.getIndex()]);
+      log.info(StackTraceUtil.filterStackTracePackage(e));
+
       return new StatisticRecord(
           Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
     }
@@ -116,6 +121,9 @@ public class StatisticFileLineParser {
     try {
       return Optional.of(NUMBER_FORMATTER.parse(numberString));
     } catch (ParseException ex) {
+      log.info("파일의 내용 중 올바르지못한 숫자 형식이 있습니다. {} ", numberString);
+      log.info(StackTraceUtil.filterStackTracePackage(ex));
+
       return Optional.empty();
     }
   }

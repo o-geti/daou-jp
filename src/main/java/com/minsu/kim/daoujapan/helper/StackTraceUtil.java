@@ -22,7 +22,7 @@ public class StackTraceUtil {
         + Arrays.stream(throwableTarget.getStackTrace())
             .filter(
                 stackTraceElement ->
-                    stackTraceElement.getClassName().contains("com.minsu.kim.daujapan"))
+                    stackTraceElement.getClassName().contains("com.minsu.kim.daoujapan"))
             .map(
                 stackTraceElement ->
                     stackTraceElement.getClassName()
