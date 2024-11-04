@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.StatisticRecord;
@@ -25,6 +26,7 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
   private final SalesAmountStatisticRepository salesAmountStatisticRepository;
   private final SalesAmountMapper salesAmountMapper;
 
+  @Transactional(readOnly = true)
   @Override
   public Paging<SalesAmountRecord> findStatistics(Pageable pageable) {
 
@@ -33,6 +35,7 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
     return Paging.createPaging(pageLeaver, pageable, salesAmountMapper::entityToDto);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Paging<SalesAmountRecord> findStatisticsByDateTime(
       LocalDateTime from, LocalDateTime to, Pageable pageable) {
@@ -41,6 +44,7 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
     return Paging.createPaging(pageLeaver, pageable, salesAmountMapper::entityToDto);
   }
 
+  @Transactional
   @Override
   public SalesAmountRecord saveStatistic(SalesAmountRecord statistic) {
     if (Boolean.TRUE.equals(
@@ -54,11 +58,18 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
     return salesAmountMapper.entityToDto(savedEntity);
   }
 
+  @Transactional
   @Override
   public Optional<SalesAmountRecord> saveStatistic(StatisticRecord statistic) {
     return statistic.salesAmountRecord().map(this::saveStatistic);
   }
 
+  @Override
+  public SalesAmountRecord updateStatistic(SalesAmountRecord statistic) {
+    return null;
+  }
+
+  @Transactional
   @Override
   public void deleteStatistic(SalesAmountRecord statistic) {}
 }

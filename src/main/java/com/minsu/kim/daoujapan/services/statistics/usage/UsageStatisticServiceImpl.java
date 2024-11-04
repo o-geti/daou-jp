@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.StatisticRecord;
@@ -26,6 +27,7 @@ public class UsageStatisticServiceImpl implements StatisticService<UsageAmountRe
   private final UsageAmountStatisticRepository usageAmountStatisticRepository;
   private final UsageAmountMapper usageAmountMapper;
 
+  @Transactional(readOnly = true)
   @Override
   public Paging<UsageAmountRecord> findStatistics(Pageable pageable) {
     var pageLeaver = usageAmountStatisticRepository.findAll(pageable);
@@ -33,6 +35,7 @@ public class UsageStatisticServiceImpl implements StatisticService<UsageAmountRe
     return Paging.createPaging(pageLeaver, pageable, usageAmountMapper::entityToDto);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Paging<UsageAmountRecord> findStatisticsByDateTime(
       LocalDateTime from, LocalDateTime to, Pageable pageable) {
@@ -41,6 +44,7 @@ public class UsageStatisticServiceImpl implements StatisticService<UsageAmountRe
     return Paging.createPaging(pageLeaver, pageable, usageAmountMapper::entityToDto);
   }
 
+  @Transactional
   @Override
   public UsageAmountRecord saveStatistic(UsageAmountRecord statistic) {
     if (Boolean.TRUE.equals(
@@ -54,11 +58,18 @@ public class UsageStatisticServiceImpl implements StatisticService<UsageAmountRe
     return usageAmountMapper.entityToDto(savedEntity);
   }
 
+  @Transactional
   @Override
   public Optional<UsageAmountRecord> saveStatistic(StatisticRecord statistic) {
     return statistic.usageAmountRecord().map(this::saveStatistic);
   }
 
+  @Override
+  public UsageAmountRecord updateStatistic(UsageAmountRecord statistic) {
+    return null;
+  }
+
+  @Transactional
   @Override
   public void deleteStatistic(UsageAmountRecord statistic) {}
 }

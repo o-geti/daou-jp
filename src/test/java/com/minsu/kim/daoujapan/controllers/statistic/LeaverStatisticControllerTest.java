@@ -5,10 +5,12 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.minsu.kim.daoujapan.data.request.LeaverRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.minsu.kim.daoujapan.data.response.Paging;
@@ -46,7 +49,7 @@ class LeaverStatisticControllerTest {
 
   @Test
   @DisplayName("필터없이 페이징 조회 요청하기")
-  void testSearchSubscriberStatisticWithoutFilter() throws Exception {
+  void testSearchLeaverStatisticWithoutFilter() throws Exception {
     given(checker.checkForBetweenFromAndTo(null, null)).willReturn(Optional.empty());
 
     given(leaverRecordStatisticService.findStatistics(any()))
@@ -64,7 +67,7 @@ class LeaverStatisticControllerTest {
 
   @Test
   @DisplayName("닐찌필터추가 후 기본값 페이징 조회 요청하기")
-  void testSearchSubscriberStatisticWithFilter() throws Exception {
+  void testSearchLeaverStatisticWithFilter() throws Exception {
     LocalDateTime from = LocalDateTime.now().minusDays(1);
     LocalDateTime to = LocalDateTime.now();
 
@@ -94,7 +97,7 @@ class LeaverStatisticControllerTest {
 
   @Test
   @DisplayName("닐찌 필터 공통 에러 핸들러 응답 확인")
-  void testSearchUsageAmountStatisticWithFilterError() throws Exception {
+  void testSearchLeaverStatisticWithFilterError() throws Exception {
     LocalDateTime from = LocalDateTime.now();
     LocalDateTime to = LocalDateTime.now().minusDays(1);
 
@@ -121,7 +124,86 @@ class LeaverStatisticControllerTest {
         .findStatisticsByDateTime(any(), any(), any());
   }
 
+  @Test
+  @DisplayName("데이터 생성")
+  void testCreateSearchLeaverStatistic() throws Exception {
+    var data = TestDummy.createLeaverRequestRecord();
+
+    given(leaverRecordStatisticService.saveStatistic(data))
+        .willReturn(TestDummy.findLeaverRequestRecord());
+
+
+    var datetime =
+        LocalDateTime.of(2024, 11, 3, 0, 0, 0)
+                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+
+    mvc.perform(
+            post("/v1/statistic/leaver")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new LeaverRequest(data.recordTime(), data.leaverCount()))))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value(201))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(1))
+        .andExpect(jsonPath("$.data.recordTime").value(datetime))
+        .andExpect(jsonPath("$.data.leaverCount").value(1))
+        .andDo(print());
+
+    then(leaverRecordStatisticService).should(times(1)).saveStatistic(data);
+  }
+
+  @Test
+  @DisplayName("데이터 생성 밸리데이션 에러")
+  void testCreateSearchLeaverStatisticValuidError() throws Exception {
+    var data = TestDummy.createLeaverRequestRecord();
+
+    given(leaverRecordStatisticService.saveStatistic(data))
+        .willReturn(TestDummy.findLeaverRequestRecord());
+
+    mvc.perform(
+           post("/v1/statistic/leaver")
+               .contentType(MediaType.APPLICATION_JSON)
+               .content(objectMapper.writeValueAsBytes(new LeaverRequest(null, data.leaverCount()))))
+       .andExpect(status().isBadRequest())
+       .andExpect(jsonPath("$.status").value(400))
+       .andExpect(jsonPath("$.data").exists())
+       .andDo(print());
+
+    mvc.perform(
+           post("/v1/statistic/leaver")
+               .contentType(MediaType.APPLICATION_JSON)
+               .content(objectMapper.writeValueAsBytes(new LeaverRequest(data.recordTime(), -1))))
+       .andExpect(status().isBadRequest())
+       .andExpect(jsonPath("$.status").value(400))
+       .andExpect(jsonPath("$.data").exists())
+       .andDo(print());
+
+
+    mvc.perform(
+           post("/v1/statistic/leaver")
+               .contentType(MediaType.APPLICATION_JSON)
+               .content(objectMapper.writeValueAsBytes(new LeaverRequest(null, null))))
+       .andExpect(status().isBadRequest())
+       .andExpect(jsonPath("$.status").value(400))
+       .andExpect(jsonPath("$.data").exists())
+       .andDo(print());
+
+
+    then(leaverRecordStatisticService).should(times(0)).saveStatistic(data);
+  }
+
   public static class TestDummy {
+    public static LeaverRecord createLeaverRequestRecord() {
+      var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+
+      return LeaverRecord.builder().recordTime(datetime).leaverCount(1).build();
+    }
+
+    public static LeaverRecord findLeaverRequestRecord() {
+      var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+
+      return LeaverRecord.builder().id(1L).recordTime(datetime).leaverCount(1).build();
+    }
 
     public static Paging<LeaverRecord> findAllLeaverRecords() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);

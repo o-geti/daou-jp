@@ -6,10 +6,13 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.minsu.kim.daoujapan.config.ErrorMessageConfig;
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.StatisticRecord;
 import com.minsu.kim.daoujapan.data.statistics.member.LeaverRecord;
+import com.minsu.kim.daoujapan.exception.NotFoundException;
 import com.minsu.kim.daoujapan.exception.StatisticIsAlreadyExist;
 import com.minsu.kim.daoujapan.mapper.statistics.member.LeaverMapper;
 import com.minsu.kim.daoujapan.repositories.statistics.member.LeaverStatisticRepository;
@@ -25,6 +28,7 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
   private final LeaverStatisticRepository leaverStatisticRepository;
   private final LeaverMapper leaverMapper;
 
+  @Transactional(readOnly = true)
   @Override
   public Paging<LeaverRecord> findStatistics(Pageable pageable) {
     var pageLeaver = leaverStatisticRepository.findAll(pageable);
@@ -32,6 +36,7 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
     return Paging.createPaging(pageLeaver, pageable, leaverMapper::entityToDto);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Paging<LeaverRecord> findStatisticsByDateTime(
       LocalDateTime from, LocalDateTime to, Pageable pageable) {
@@ -40,6 +45,7 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
     return Paging.createPaging(pageLeaver, pageable, leaverMapper::entityToDto);
   }
 
+  @Transactional
   @Override
   public LeaverRecord saveStatistic(LeaverRecord statistic) {
     if (Boolean.TRUE.equals(leaverStatisticRepository.existsByRecordTime(statistic.recordTime()))) {
@@ -52,11 +58,25 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
     return leaverMapper.entityToDto(savedEntity);
   }
 
+  @Transactional
   @Override
   public Optional<LeaverRecord> saveStatistic(StatisticRecord statistic) {
     return statistic.leaverRecord().map(this::saveStatistic);
   }
 
+  @Transactional
+  @Override
+  public LeaverRecord updateStatistic(LeaverRecord statistic) {
+    var leaverEntity =
+        leaverStatisticRepository
+            .findById(statistic.id())
+            .orElseThrow(() -> new NotFoundException("탈퇴자 정보를 찾을 수 없습니다."));
+    leaverEntity.modifyEntity(statistic.recordTime(), statistic.leaverCount());
+
+    return leaverMapper.entityToDto(leaverEntity);
+  }
+
+  @Transactional
   @Override
   public void deleteStatistic(LeaverRecord statistic) {}
 }

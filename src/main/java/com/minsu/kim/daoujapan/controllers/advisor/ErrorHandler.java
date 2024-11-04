@@ -1,6 +1,8 @@
 package com.minsu.kim.daoujapan.controllers.advisor;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,7 +28,6 @@ import com.minsu.kim.daoujapan.helper.StackTraceUtil;
 @Slf4j
 public class ErrorHandler {
   @ExceptionHandler({
-    MethodArgumentNotValidException.class,
     MissingServletRequestParameterException.class,
     ValidateCheckError.class
   })
@@ -35,6 +36,16 @@ public class ErrorHandler {
     log.info(StackTraceUtil.filterStackTracePackage(exception));
 
     return CommonResponse.responseBadRequest(exception.getMessage());
+  }
+
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public CommonResponse<List<String>> exceptValidation400Error(MethodArgumentNotValidException exception) {
+
+    return CommonResponse.responseBadRequest(exception.getFieldErrors()
+                                                      .stream()
+                                                      .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                                                      .toList());
   }
 
   @ExceptionHandler({NotFoundException.class, NoResourceFoundException.class})

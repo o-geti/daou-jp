@@ -45,4 +45,9 @@ public class LeaverStatisticEntity {
 
   @Comment("탈퇴자수")
   private Integer leaverCount;
+
+  public void modifyEntity(LocalDateTime recordTime, Integer leaverCount) {
+    this.leaverCount = leaverCount;
+    this.recordTime = recordTime;
+  }
 }

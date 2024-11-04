@@ -21,5 +21,7 @@ public interface StatisticService<T> {
 
   Optional<T> saveStatistic(StatisticRecord statistic);
 
+  T updateStatistic(T statistic);
+
   void deleteStatistic(T statistic);
 }

@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.StatisticRecord;
@@ -25,6 +26,7 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
   private final PaymentAmountStatisticRepository paymentAmountStatisticRepository;
   private final PaymentAmountMapper paymentAmountMapper;
 
+  @Transactional(readOnly = true)
   @Override
   public Paging<PaymentAmountRecord> findStatistics(Pageable pageable) {
     var pageSubscriber = paymentAmountStatisticRepository.findAll(pageable);
@@ -32,6 +34,7 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
     return Paging.createPaging(pageSubscriber, pageable, paymentAmountMapper::entityToDto);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Paging<PaymentAmountRecord> findStatisticsByDateTime(
       LocalDateTime from, LocalDateTime to, Pageable pageable) {
@@ -41,6 +44,7 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
     return Paging.createPaging(pageSubscriber, pageable, paymentAmountMapper::entityToDto);
   }
 
+  @Transactional
   @Override
   public PaymentAmountRecord saveStatistic(PaymentAmountRecord statistic) {
     if (Boolean.TRUE.equals(
@@ -54,11 +58,18 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
     return paymentAmountMapper.entityToDto(savedEntity);
   }
 
+  @Transactional
   @Override
   public Optional<PaymentAmountRecord> saveStatistic(StatisticRecord statistic) {
     return statistic.paymentAmountRecord().map(this::saveStatistic);
   }
 
+  @Override
+  public PaymentAmountRecord updateStatistic(PaymentAmountRecord statistic) {
+    return null;
+  }
+
+  @Transactional
   @Override
   public void deleteStatistic(PaymentAmountRecord statistic) {}
 }
