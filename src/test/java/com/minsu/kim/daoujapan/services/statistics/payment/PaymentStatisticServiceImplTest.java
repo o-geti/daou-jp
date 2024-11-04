@@ -42,7 +42,7 @@ class PaymentStatisticServiceImplTest {
   @DisplayName("결제금액 정보를 페이징하여 반환한다.")
   void findStatistics() {
     // given
-    given(paymentAmountStatisticRepository.findAll(any(Pageable.class)))
+    given(paymentAmountStatisticRepository.findAllByDeleteDtIsNull(any(Pageable.class)))
         .willReturn(TestDummy.findAllPaymentAmountStatisticEntity());
 
     // when
@@ -51,7 +51,9 @@ class PaymentStatisticServiceImplTest {
 
     // then
     var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
-    then(paymentAmountStatisticRepository).should(times(1)).findAll(any(Pageable.class));
+    then(paymentAmountStatisticRepository)
+        .should(times(1))
+        .findAllByDeleteDtIsNull(any(Pageable.class));
     assertThat(pagingSubscriberRecords.content()).hasSize(3);
     assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
     assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
@@ -66,7 +68,7 @@ class PaymentStatisticServiceImplTest {
   void findStatisticsByDateTime() {
     // given
     given(
-            paymentAmountStatisticRepository.findAllByRecordTimeBetween(
+            paymentAmountStatisticRepository.findAllByRecordTimeBetweenAndDeleteDtIsNull(
                 any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
         .willReturn(TestDummy.findAllPaymentAmountStatisticEntity());
 
@@ -81,7 +83,7 @@ class PaymentStatisticServiceImplTest {
     var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
     then(paymentAmountStatisticRepository)
         .should(times(1))
-        .findAllByRecordTimeBetween(searchFrom, searchTo, pageRequest);
+        .findAllByRecordTimeBetweenAndDeleteDtIsNull(searchFrom, searchTo, pageRequest);
     assertThat(pagingSubscriberRecords.content()).hasSize(3);
     assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
     assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
@@ -97,6 +99,7 @@ class PaymentStatisticServiceImplTest {
     // given
     given(paymentAmountStatisticRepository.save(any(PaymentAmountStatisticEntity.class)))
         .willReturn(TestDummy.findPaymentAmountStatisticEntitySuit());
+    given(paymentAmountStatisticRepository.existsByRecordTime(any())).willReturn(false);
 
     // when
     var paymentAmountRecord = TestDummy.createPaymentAmountRecordSuit();
@@ -128,7 +131,7 @@ class PaymentStatisticServiceImplTest {
     public static PaymentAmountRecord createPaymentAmountRecordSuit() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return new PaymentAmountRecord(null, datetime, 10_000L);
+      return new PaymentAmountRecord(null, datetime, 10_000L, null);
     }
 
     public static Page<PaymentAmountStatisticEntity> findAllPaymentAmountStatisticEntity() {

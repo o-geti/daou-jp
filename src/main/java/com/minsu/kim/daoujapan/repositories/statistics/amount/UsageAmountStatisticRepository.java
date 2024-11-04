@@ -18,7 +18,9 @@ import com.minsu.kim.daoujapan.domains.statistics.amount.UsageAmountStatisticEnt
 @Repository
 public interface UsageAmountStatisticRepository
     extends JpaRepository<UsageAmountStatisticEntity, Long> {
-  Page<UsageAmountStatisticEntity> findAllByRecordTimeBetween(
+  Page<UsageAmountStatisticEntity> findAllByDeleteDtIsNull(Pageable pageable);
+
+  Page<UsageAmountStatisticEntity> findAllByRecordTimeBetweenAndDeleteDtIsNull(
       LocalDateTime searchFrom, LocalDateTime searchTo, Pageable pageable);
 
   Boolean existsByRecordTime(LocalDateTime recordTime);

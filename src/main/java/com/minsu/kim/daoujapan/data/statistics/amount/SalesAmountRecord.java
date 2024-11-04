@@ -19,7 +19,8 @@ import org.springframework.format.annotation.DateTimeFormat;
  * @since 1.0
  */
 @Builder
-public record SalesAmountRecord(Long id, LocalDateTime recordTime, long salesAmount) {
+public record SalesAmountRecord(
+    Long id, LocalDateTime recordTime, long salesAmount, LocalDateTime deleteDt) {
   @Data
   @Builder
   @NoArgsConstructor

@@ -29,7 +29,7 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
   @Transactional(readOnly = true)
   @Override
   public Paging<PaymentAmountRecord> findStatistics(Pageable pageable) {
-    var pageSubscriber = paymentAmountStatisticRepository.findAll(pageable);
+    var pageSubscriber = paymentAmountStatisticRepository.findAllByDeleteDtIsNull(pageable);
 
     return Paging.createPaging(pageSubscriber, pageable, paymentAmountMapper::entityToDto);
   }
@@ -39,7 +39,8 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
   public Paging<PaymentAmountRecord> findStatisticsByDateTime(
       LocalDateTime from, LocalDateTime to, Pageable pageable) {
     var pageSubscriber =
-        paymentAmountStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
+        paymentAmountStatisticRepository.findAllByRecordTimeBetweenAndDeleteDtIsNull(
+            from, to, pageable);
 
     return Paging.createPaging(pageSubscriber, pageable, paymentAmountMapper::entityToDto);
   }
@@ -71,5 +72,5 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
 
   @Transactional
   @Override
-  public void deleteStatistic(PaymentAmountRecord statistic) {}
+  public void deleteStatistic(Long statisticId) {}
 }

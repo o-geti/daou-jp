@@ -31,19 +31,19 @@ class StatisticFileLineParserTest {
     assertThat(parserResult).isNotNull();
     assertThat(parserResult.subscriberRecord())
         .isNotEmpty()
-        .hasValue(new SubscriberRecord(null, recordDatetime, 999));
+        .hasValue(new SubscriberRecord(null, recordDatetime, 999, null));
     assertThat(parserResult.leaverRecord())
         .isNotEmpty()
-        .hasValue(new LeaverRecord(null, recordDatetime, 30));
+        .hasValue(new LeaverRecord(null, recordDatetime, 30, null));
     assertThat(parserResult.paymentAmountRecord())
         .isNotEmpty()
-        .hasValue(new PaymentAmountRecord(null, recordDatetime, 2_500_000L));
+        .hasValue(new PaymentAmountRecord(null, recordDatetime, 2_500_000L, null));
     assertThat(parserResult.usageAmountRecord())
         .isNotEmpty()
-        .hasValue(new UsageAmountRecord(null, recordDatetime, 4_750_000L));
+        .hasValue(new UsageAmountRecord(null, recordDatetime, 4_750_000L, null));
     assertThat(parserResult.salesAmountRecord())
         .isNotEmpty()
-        .hasValue(new SalesAmountRecord(null, recordDatetime, 72_258_158L));
+        .hasValue(new SalesAmountRecord(null, recordDatetime, 72_258_158L, null));
   }
 
   @Test
@@ -61,11 +61,11 @@ class StatisticFileLineParserTest {
     ;
     assertThat(parserResult.paymentAmountRecord())
         .isNotEmpty()
-        .hasValue(new PaymentAmountRecord(null, recordDatetime, 2_500_000L));
+        .hasValue(new PaymentAmountRecord(null, recordDatetime, 2_500_000L, null));
     assertThat(parserResult.usageAmountRecord()).isEmpty();
     assertThat(parserResult.salesAmountRecord())
         .isNotEmpty()
-        .hasValue(new SalesAmountRecord(null, recordDatetime, 72_258_158L));
+        .hasValue(new SalesAmountRecord(null, recordDatetime, 72_258_158L, null));
   }
 
   @Test

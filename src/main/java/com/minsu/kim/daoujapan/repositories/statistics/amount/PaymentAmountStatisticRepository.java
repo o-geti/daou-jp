@@ -18,7 +18,9 @@ import com.minsu.kim.daoujapan.domains.statistics.amount.PaymentAmountStatisticE
 @Repository
 public interface PaymentAmountStatisticRepository
     extends JpaRepository<PaymentAmountStatisticEntity, Long> {
-  Page<PaymentAmountStatisticEntity> findAllByRecordTimeBetween(
+  Page<PaymentAmountStatisticEntity> findAllByDeleteDtIsNull(Pageable pageable);
+
+  Page<PaymentAmountStatisticEntity> findAllByRecordTimeBetweenAndDeleteDtIsNull(
       LocalDateTime searchFrom, LocalDateTime searchTo, Pageable pageable);
 
   Boolean existsByRecordTime(LocalDateTime recordTime);

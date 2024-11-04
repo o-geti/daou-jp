@@ -23,5 +23,5 @@ public interface StatisticService<T> {
 
   T updateStatistic(T statistic);
 
-  void deleteStatistic(T statistic);
+  void deleteStatistic(Long id);
 }

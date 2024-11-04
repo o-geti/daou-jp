@@ -30,7 +30,7 @@ public class UsageStatisticServiceImpl implements StatisticService<UsageAmountRe
   @Transactional(readOnly = true)
   @Override
   public Paging<UsageAmountRecord> findStatistics(Pageable pageable) {
-    var pageLeaver = usageAmountStatisticRepository.findAll(pageable);
+    var pageLeaver = usageAmountStatisticRepository.findAllByDeleteDtIsNull(pageable);
 
     return Paging.createPaging(pageLeaver, pageable, usageAmountMapper::entityToDto);
   }
@@ -39,7 +39,9 @@ public class UsageStatisticServiceImpl implements StatisticService<UsageAmountRe
   @Override
   public Paging<UsageAmountRecord> findStatisticsByDateTime(
       LocalDateTime from, LocalDateTime to, Pageable pageable) {
-    var pageLeaver = usageAmountStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
+    var pageLeaver =
+        usageAmountStatisticRepository.findAllByRecordTimeBetweenAndDeleteDtIsNull(
+            from, to, pageable);
 
     return Paging.createPaging(pageLeaver, pageable, usageAmountMapper::entityToDto);
   }
@@ -71,5 +73,5 @@ public class UsageStatisticServiceImpl implements StatisticService<UsageAmountRe
 
   @Transactional
   @Override
-  public void deleteStatistic(UsageAmountRecord statistic) {}
+  public void deleteStatistic(Long statisticId) {}
 }

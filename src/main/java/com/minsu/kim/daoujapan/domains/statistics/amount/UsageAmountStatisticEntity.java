@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Comment;
 
+import com.minsu.kim.daoujapan.domains.statistics.BaseEntity;
+
 /**
  * 사용금액 통계 엔티티입니다.
  *
@@ -32,7 +34,7 @@ import org.hibernate.annotations.Comment;
 @Table(
     name = "usage_amount_statistics",
     indexes = @Index(name = "idx_usage_record_time", columnList = "recordTime"))
-public class UsageAmountStatisticEntity {
+public class UsageAmountStatisticEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

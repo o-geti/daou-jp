@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Comment;
 
+import com.minsu.kim.daoujapan.domains.statistics.BaseEntity;
+
 /**
  * 매출금액 통계 엔티티입니다.
  *
@@ -28,11 +30,11 @@ import org.hibernate.annotations.Comment;
 @Builder
 @ToString
 @Getter
-@Entity(name = "SalesAmountStatisticEntity")
+@Entity
 @Table(
     name = "sales_amount_statistics",
     indexes = @Index(name = "idx_sales_record_time", columnList = "recordTime"))
-public class SalesAmountStatisticEntity {
+public class SalesAmountStatisticEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

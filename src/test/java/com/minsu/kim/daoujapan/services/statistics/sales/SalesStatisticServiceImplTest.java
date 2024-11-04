@@ -42,7 +42,7 @@ class SalesStatisticServiceImplTest {
   @DisplayName("매출금액 정보를 페이징하여 반환한다.")
   void findStatistics() {
     // given
-    given(salesAmountStatisticRepository.findAll(any(Pageable.class)))
+    given(salesAmountStatisticRepository.findAllByDeleteDtIsNull(any(Pageable.class)))
         .willReturn(TestDummy.findAllSalesAmountStatisticEntity());
 
     // when
@@ -51,7 +51,7 @@ class SalesStatisticServiceImplTest {
 
     // then
     var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
-    then(salesAmountStatisticRepository).should(times(1)).findAll(pageRequest);
+    then(salesAmountStatisticRepository).should(times(1)).findAllByDeleteDtIsNull(pageRequest);
     assertThat(pagingSubscriberRecords.content()).hasSize(3);
     assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
     assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
@@ -66,7 +66,7 @@ class SalesStatisticServiceImplTest {
   void findStatisticsByDateTime() {
     // given
     given(
-            salesAmountStatisticRepository.findAllByRecordTimeBetween(
+            salesAmountStatisticRepository.findAllByRecordTimeBetweenAndDeleteDtIsNull(
                 any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
         .willReturn(TestDummy.findAllSalesAmountStatisticEntity());
 
@@ -81,7 +81,7 @@ class SalesStatisticServiceImplTest {
     var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
     then(salesAmountStatisticRepository)
         .should(times(1))
-        .findAllByRecordTimeBetween(searchFrom, searchTo, pageRequest);
+        .findAllByRecordTimeBetweenAndDeleteDtIsNull(searchFrom, searchTo, pageRequest);
     assertThat(pagingSubscriberRecords.content()).hasSize(3);
     assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
     assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
@@ -97,7 +97,7 @@ class SalesStatisticServiceImplTest {
     // given
     given(salesAmountStatisticRepository.save(any(SalesAmountStatisticEntity.class)))
         .willReturn(TestDummy.findSalesAmountStatisticEntitySuit());
-
+    given(salesAmountStatisticRepository.existsByRecordTime(any())).willReturn(false);
     // when
     var salesAmountRecord = TestDummy.createSalesAmountRecordSuit();
     var saveSalesAmountStatistic = salesStatisticService.saveStatistic(salesAmountRecord);
@@ -127,7 +127,7 @@ class SalesStatisticServiceImplTest {
     public static SalesAmountRecord createSalesAmountRecordSuit() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return new SalesAmountRecord(null, datetime, 10_000L);
+      return new SalesAmountRecord(null, datetime, 10_000L, null);
     }
 
     public static Page<SalesAmountStatisticEntity> findAllSalesAmountStatisticEntity() {

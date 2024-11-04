@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.minsu.kim.daoujapan.data.request.LeaverRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.minsu.kim.daoujapan.data.request.LeaverRequest;
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.member.LeaverRecord;
 import com.minsu.kim.daoujapan.exception.ValidateCheckError;
@@ -132,15 +132,16 @@ class LeaverStatisticControllerTest {
     given(leaverRecordStatisticService.saveStatistic(data))
         .willReturn(TestDummy.findLeaverRequestRecord());
 
-
     var datetime =
         LocalDateTime.of(2024, 11, 3, 0, 0, 0)
-                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 
     mvc.perform(
             post("/v1/statistic/leaver")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new LeaverRequest(data.recordTime(), data.leaverCount()))))
+                .content(
+                    objectMapper.writeValueAsBytes(
+                        new LeaverRequest(data.recordTime(), data.leaverCount()))))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.status").value(201))
         .andExpect(jsonPath("$.data").exists())
@@ -161,33 +162,32 @@ class LeaverStatisticControllerTest {
         .willReturn(TestDummy.findLeaverRequestRecord());
 
     mvc.perform(
-           post("/v1/statistic/leaver")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new LeaverRequest(null, data.leaverCount()))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
+            post("/v1/statistic/leaver")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsBytes(new LeaverRequest(null, data.leaverCount()))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     mvc.perform(
-           post("/v1/statistic/leaver")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new LeaverRequest(data.recordTime(), -1))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
-
+            post("/v1/statistic/leaver")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new LeaverRequest(data.recordTime(), -1))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     mvc.perform(
-           post("/v1/statistic/leaver")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new LeaverRequest(null, null))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
-
+            post("/v1/statistic/leaver")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new LeaverRequest(null, null))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     then(leaverRecordStatisticService).should(times(0)).saveStatistic(data);
   }

@@ -1,6 +1,7 @@
 package com.minsu.kim.daoujapan.repositories.statistics.member;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,8 +18,12 @@ import com.minsu.kim.daoujapan.domains.statistics.member.LeaverStatisticEntity;
  */
 @Repository
 public interface LeaverStatisticRepository extends JpaRepository<LeaverStatisticEntity, Long> {
-  Page<LeaverStatisticEntity> findAllByRecordTimeBetween(
+  Page<LeaverStatisticEntity> findAllByDeleteDtIsNull(Pageable pageable);
+
+  Page<LeaverStatisticEntity> findAllByRecordTimeBetweenAndDeleteDtIsNull(
       LocalDateTime searchFrom, LocalDateTime searchTo, Pageable pageable);
+
+  Optional<LeaverStatisticEntity> findByDeleteDtIsNullAndId(Long id);
 
   Boolean existsByRecordTime(LocalDateTime recordTime);
 }

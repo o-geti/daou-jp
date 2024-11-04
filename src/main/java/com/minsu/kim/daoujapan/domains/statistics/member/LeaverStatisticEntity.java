@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Comment;
 
+import com.minsu.kim.daoujapan.domains.statistics.BaseEntity;
+
 /**
  * 탈퇴자 통계 엔티티입니다.
  *
@@ -32,7 +34,7 @@ import org.hibernate.annotations.Comment;
 @Table(
     name = "leaver_statistics",
     indexes = @Index(name = "idx_leaver_record_time", columnList = "recordTime"))
-public class LeaverStatisticEntity {
+public class LeaverStatisticEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,5 +51,9 @@ public class LeaverStatisticEntity {
   public void modifyEntity(LocalDateTime recordTime, Integer leaverCount) {
     this.leaverCount = leaverCount;
     this.recordTime = recordTime;
+  }
+
+  public void deleteStatistic() {
+    super.setDeleteDt(LocalDateTime.now());
   }
 }

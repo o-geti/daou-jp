@@ -19,7 +19,8 @@ import org.springframework.format.annotation.DateTimeFormat;
  * @since 1.0
  */
 @Builder
-public record LeaverRecord(Long id, LocalDateTime recordTime, int leaverCount) {
+public record LeaverRecord(
+    Long id, LocalDateTime recordTime, int leaverCount, LocalDateTime deleteDt) {
 
   @Data
   @Builder

@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Comment;
 
+import com.minsu.kim.daoujapan.domains.statistics.BaseEntity;
+
 /**
  * 가입자 통계 엔티티입니다.
  *
@@ -32,7 +34,7 @@ import org.hibernate.annotations.Comment;
 @Table(
     name = "subscriber_statistics",
     indexes = @Index(name = "idx_subscriber_record_time", columnList = "recordTime"))
-public class SubscriberStatisticEntity {
+public class SubscriberStatisticEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,19 +1,18 @@
 package com.minsu.kim.daoujapan.filter;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 /**
  * @author minsu.kim
@@ -22,7 +21,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class RequestProcessTimeMarkerFilter implements Filter {
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+  public void doFilter(
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
       throws ServletException, IOException {
 
     var requestId = UUID.randomUUID();

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -79,7 +80,7 @@ public class LeaverStatisticController {
 
   @PutMapping("/{id}")
   @Operation(summary = "탈퇴자 통계 수정", description = "탈퇴자의 통계 수치를 수정할 수 있습니다.")
-  public CommonResponse<LeaverRecord> registerLeaverStatistic(
+  public CommonResponse<LeaverRecord> updateLeaverStatistic(
       @Valid @NotNull @Min(1) @PathVariable Long id,
       @Valid @RequestBody LeaverRequest leaverRecord) {
 
@@ -92,5 +93,14 @@ public class LeaverStatisticController {
 
     return CommonResponse.responseCreated(
         leaverRecordStatisticService.updateStatistic(updateLeaverStatistic));
+  }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "탈퇴자 통계 삭제", description = "탈퇴자의 통계 수치를 삭제 할 수 있습니다.")
+  public Void deleteLeaverStatistic(@Valid @NotNull @Min(1) @PathVariable Long id) {
+    leaverRecordStatisticService.deleteStatistic(id);
+
+    return null;
   }
 }

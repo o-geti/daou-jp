@@ -39,7 +39,7 @@ class LeaverStatisticServiceImplTest {
   void findStatistics() {
 
     // given
-    given(repository.findAll(any(Pageable.class)))
+    given(repository.findAllByDeleteDtIsNull(any(Pageable.class)))
         .willReturn(TestDummy.findAllLeaverStatisticEntity());
 
     // when
@@ -48,7 +48,7 @@ class LeaverStatisticServiceImplTest {
 
     // then
     var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
-    then(repository).should(times(1)).findAll(pageRequest);
+    then(repository).should(times(1)).findAllByDeleteDtIsNull(pageRequest);
     assertThat(pagingSubscriberRecords.content()).hasSize(3);
     assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
     assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
@@ -63,7 +63,7 @@ class LeaverStatisticServiceImplTest {
   void findStatisticsByDateTime() {
     // given
     given(
-            repository.findAllByRecordTimeBetween(
+            repository.findAllByRecordTimeBetweenAndDeleteDtIsNull(
                 any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
         .willReturn(TestDummy.findAllLeaverStatisticEntity());
 
@@ -76,7 +76,9 @@ class LeaverStatisticServiceImplTest {
 
     // then
     var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
-    then(repository).should(times(1)).findAllByRecordTimeBetween(searchFrom, searchTo, pageRequest);
+    then(repository)
+        .should(times(1))
+        .findAllByRecordTimeBetweenAndDeleteDtIsNull(searchFrom, searchTo, pageRequest);
     assertThat(pagingSubscriberRecords.content()).hasSize(3);
     assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
     assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
@@ -92,6 +94,7 @@ class LeaverStatisticServiceImplTest {
     // given
     given(repository.save(any(LeaverStatisticEntity.class)))
         .willReturn(TestDummy.findLeaverStatisticEntitySuit());
+    given(repository.existsByRecordTime(any())).willReturn(false);
 
     // when
     var leaverDummy = TestDummy.createLeaverRecordSuit();
@@ -104,14 +107,7 @@ class LeaverStatisticServiceImplTest {
   }
 
   @Test
-  void updateStatistic() {
-    // TODO : test 구현 필요
-  }
-
-  @Test
-  void deleteStatistic() {
-    // TODO : test 구현 필요
-  }
+  void updateStatistic() {}
 
   public static class TestDummy {
     public static LeaverStatisticEntity findLeaverStatisticEntitySuit() {
@@ -123,7 +119,7 @@ class LeaverStatisticServiceImplTest {
     public static LeaverRecord createLeaverRecordSuit() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return new LeaverRecord(null, datetime, 10);
+      return new LeaverRecord(null, datetime, 10, null);
     }
 
     public static Page<LeaverStatisticEntity> findAllLeaverStatisticEntity() {

@@ -43,7 +43,8 @@ class UsageStatisticServiceImplTest {
   void findStatistics() {
     // given
     var dummy = TestDummy.findAllUsageAmountStatisticEntity();
-    given(usageAmountStatisticRepository.findAll(any(Pageable.class))).willReturn(dummy);
+    given(usageAmountStatisticRepository.findAllByDeleteDtIsNull(any(Pageable.class)))
+        .willReturn(dummy);
 
     // when
     var pageRequest = PageRequest.of(0, 3);
@@ -51,7 +52,7 @@ class UsageStatisticServiceImplTest {
 
     // then
     var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
-    then(usageAmountStatisticRepository).should(times(1)).findAll(pageRequest);
+    then(usageAmountStatisticRepository).should(times(1)).findAllByDeleteDtIsNull(pageRequest);
     assertThat(pagingSubscriberRecords.content()).hasSize(3);
     assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
     assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
@@ -66,7 +67,7 @@ class UsageStatisticServiceImplTest {
   void findStatisticsByDateTime() {
     // given
     given(
-            usageAmountStatisticRepository.findAllByRecordTimeBetween(
+            usageAmountStatisticRepository.findAllByRecordTimeBetweenAndDeleteDtIsNull(
                 any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
         .willReturn(TestDummy.findAllUsageAmountStatisticEntity());
 
@@ -81,7 +82,7 @@ class UsageStatisticServiceImplTest {
     var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
     then(usageAmountStatisticRepository)
         .should(times(1))
-        .findAllByRecordTimeBetween(searchFrom, searchTo, pageRequest);
+        .findAllByRecordTimeBetweenAndDeleteDtIsNull(searchFrom, searchTo, pageRequest);
     assertThat(pagingSubscriberRecords.content()).hasSize(3);
     assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
     assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
@@ -97,6 +98,7 @@ class UsageStatisticServiceImplTest {
     // given
     given(usageAmountStatisticRepository.save(any(UsageAmountStatisticEntity.class)))
         .willReturn(TestDummy.findUsageAmountStatisticEntitySuit());
+    given(usageAmountStatisticRepository.existsByRecordTime(any())).willReturn(false);
 
     // when
     var usageAmountRecord = TestDummy.createUsageAmountRecordSuit();
@@ -127,7 +129,7 @@ class UsageStatisticServiceImplTest {
     public static UsageAmountRecord createUsageAmountRecordSuit() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return new UsageAmountRecord(null, datetime, 10_000L);
+      return new UsageAmountRecord(null, datetime, 10_000L, null);
     }
 
     public static Page<UsageAmountStatisticEntity> findAllUsageAmountStatisticEntity() {

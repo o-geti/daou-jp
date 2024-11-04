@@ -29,7 +29,7 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
   @Transactional(readOnly = true)
   @Override
   public Paging<SubscriberRecord> findStatistics(Pageable pageable) {
-    var pageSubscriber = subscriberStatisticRepository.findAll(pageable);
+    var pageSubscriber = subscriberStatisticRepository.findAllByDeleteDtIsNull(pageable);
 
     return Paging.createPaging(pageSubscriber, pageable, subscriberMapper::entityToDto);
   }
@@ -39,7 +39,8 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
   public Paging<SubscriberRecord> findStatisticsByDateTime(
       LocalDateTime from, LocalDateTime to, Pageable pageable) {
     var pageSubscriber =
-        subscriberStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
+        subscriberStatisticRepository.findAllByRecordTimeBetweenAndDeleteDtIsNull(
+            from, to, pageable);
 
     return Paging.createPaging(pageSubscriber, pageable, subscriberMapper::entityToDto);
   }
@@ -72,5 +73,5 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
 
   @Transactional
   @Override
-  public void deleteStatistic(SubscriberRecord statistic) {}
+  public void deleteStatistic(Long statisticId) {}
 }

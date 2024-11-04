@@ -18,8 +18,9 @@ import com.minsu.kim.daoujapan.domains.statistics.member.SubscriberStatisticEnti
 @Repository
 public interface SubscriberStatisticRepository
     extends JpaRepository<SubscriberStatisticEntity, Long> {
+  Page<SubscriberStatisticEntity> findAllByDeleteDtIsNull(Pageable pageable);
 
-  Page<SubscriberStatisticEntity> findAllByRecordTimeBetween(
+  Page<SubscriberStatisticEntity> findAllByRecordTimeBetweenAndDeleteDtIsNull(
       LocalDateTime searchFrom, LocalDateTime searchTo, Pageable pageable);
 
   Boolean existsByRecordTime(LocalDateTime recordTime);

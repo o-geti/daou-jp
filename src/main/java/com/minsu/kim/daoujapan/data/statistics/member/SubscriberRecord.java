@@ -19,7 +19,8 @@ import org.springframework.format.annotation.DateTimeFormat;
  * @since 1.0
  */
 @Builder
-public record SubscriberRecord(Long id, LocalDateTime recordTime, int subscriberCount) {
+public record SubscriberRecord(
+    Long id, LocalDateTime recordTime, int subscriberCount, LocalDateTime deleteDt) {
 
   @Data
   @Builder

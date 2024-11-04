@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
@@ -12,9 +13,9 @@ import org.springframework.format.annotation.DateTimeFormat;
  * @since 1.0
  */
 public record LeaverRequest(
-        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         @NotNull(message = "탈퇴자 통계 등록 시간을 입력하세요.")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime recordTime,
-        @NotNull(message = "탈퇴자 수는 필수값입니다.")
-        @Min(value = 0, message = "탈퇴자 수는 음수가 될 수 없습니다.")
+    @NotNull(message = "탈퇴자 수는 필수값입니다.") @Min(value = 0, message = "탈퇴자 수는 음수가 될 수 없습니다.")
         Integer leaverCount) {}

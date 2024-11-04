@@ -1,9 +1,11 @@
 package com.minsu.kim.daoujapan.controllers.advisor;
 
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -29,7 +31,8 @@ import com.minsu.kim.daoujapan.helper.StackTraceUtil;
 public class ErrorHandler {
   @ExceptionHandler({
     MissingServletRequestParameterException.class,
-    ValidateCheckError.class
+    HttpMessageNotReadableException.class,
+    ValidateCheckError.class,
   })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public CommonResponse<String> exceptValidation400Error(Exception exception) {
@@ -40,12 +43,13 @@ public class ErrorHandler {
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public CommonResponse<List<String>> exceptValidation400Error(MethodArgumentNotValidException exception) {
+  public CommonResponse<List<String>> exceptValidation400Error(
+      MethodArgumentNotValidException exception) {
 
-    return CommonResponse.responseBadRequest(exception.getFieldErrors()
-                                                      .stream()
-                                                      .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                                                      .toList());
+    return CommonResponse.responseBadRequest(
+        exception.getFieldErrors().stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .toList());
   }
 
   @ExceptionHandler({NotFoundException.class, NoResourceFoundException.class})

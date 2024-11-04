@@ -39,7 +39,7 @@ class SubscriberStatisticServiceImplTest {
   @DisplayName("가입자 정보를 페이징하여 반환한다.")
   void findStatistics() {
     // given
-    given(repository.findAll(any(Pageable.class)))
+    given(repository.findAllByDeleteDtIsNull(any(Pageable.class)))
         .willReturn(TestDummy.findAllSubscriberStatisticEntity());
 
     // when
@@ -48,7 +48,7 @@ class SubscriberStatisticServiceImplTest {
 
     // then
     var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
-    then(repository).should(times(1)).findAll(any(Pageable.class));
+    then(repository).should(times(1)).findAllByDeleteDtIsNull(any(Pageable.class));
     assertThat(pagingSubscriberRecords.content()).hasSize(3);
     assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
     assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
@@ -63,7 +63,7 @@ class SubscriberStatisticServiceImplTest {
   void findStatisticsByDateTime() {
     // given
     given(
-            repository.findAllByRecordTimeBetween(
+            repository.findAllByRecordTimeBetweenAndDeleteDtIsNull(
                 any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
         .willReturn(TestDummy.findAllSubscriberStatisticEntity());
 
@@ -76,7 +76,9 @@ class SubscriberStatisticServiceImplTest {
 
     // then
     var assertDatetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
-    then(repository).should(times(1)).findAllByRecordTimeBetween(searchFrom, searchTo, pageRequest);
+    then(repository)
+        .should(times(1))
+        .findAllByRecordTimeBetweenAndDeleteDtIsNull(searchFrom, searchTo, pageRequest);
     assertThat(pagingSubscriberRecords.content()).hasSize(3);
     assertThat(pagingSubscriberRecords.content().getFirst().id()).isEqualTo(1L);
     assertThat(pagingSubscriberRecords.content().getFirst().recordTime()).isEqualTo(assertDatetime);
@@ -92,6 +94,7 @@ class SubscriberStatisticServiceImplTest {
     // given
     given(repository.save(any(SubscriberStatisticEntity.class)))
         .willReturn(TestDummy.findSubscriberStatisticEntitySuit());
+    given(repository.existsByRecordTime(any())).willReturn(false);
 
     // when
     var subscriberSuit = TestDummy.createSubscriberRecordSuit();
@@ -120,7 +123,7 @@ class SubscriberStatisticServiceImplTest {
     public static SubscriberRecord createSubscriberRecordSuit() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return new SubscriberRecord(null, datetime, 10);
+      return new SubscriberRecord(null, datetime, 10, null);
     }
 
     public static Page<SubscriberStatisticEntity> findAllSubscriberStatisticEntity() {

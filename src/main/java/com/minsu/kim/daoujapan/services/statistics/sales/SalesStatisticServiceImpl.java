@@ -30,7 +30,7 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
   @Override
   public Paging<SalesAmountRecord> findStatistics(Pageable pageable) {
 
-    var pageLeaver = salesAmountStatisticRepository.findAll(pageable);
+    var pageLeaver = salesAmountStatisticRepository.findAllByDeleteDtIsNull(pageable);
 
     return Paging.createPaging(pageLeaver, pageable, salesAmountMapper::entityToDto);
   }
@@ -39,7 +39,9 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
   @Override
   public Paging<SalesAmountRecord> findStatisticsByDateTime(
       LocalDateTime from, LocalDateTime to, Pageable pageable) {
-    var pageLeaver = salesAmountStatisticRepository.findAllByRecordTimeBetween(from, to, pageable);
+    var pageLeaver =
+        salesAmountStatisticRepository.findAllByRecordTimeBetweenAndDeleteDtIsNull(
+            from, to, pageable);
 
     return Paging.createPaging(pageLeaver, pageable, salesAmountMapper::entityToDto);
   }
@@ -71,5 +73,5 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
 
   @Transactional
   @Override
-  public void deleteStatistic(SalesAmountRecord statistic) {}
+  public void deleteStatistic(Long statisticId) {}
 }
