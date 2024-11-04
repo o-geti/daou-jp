@@ -6,6 +6,7 @@
 package com.minsu.kim.daoujapan.services.statistics.usage;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -59,8 +60,8 @@ public class UsageStatisticServiceImpl implements StatisticService<UsageAmountRe
   }
 
   @Override
-  public UsageAmountRecord saveStatistic(StatisticRecord statistic) {
-    return this.saveStatistic(statistic.usageAmountRecord());
+  public Optional<UsageAmountRecord> saveStatistic(StatisticRecord statistic) {
+    return statistic.usageAmountRecord().map(this::saveStatistic);
   }
 
   @Override

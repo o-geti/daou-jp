@@ -80,7 +80,7 @@ public class StatisticFileSaver {
       service.saveStatistic(statisticRecord);
     } catch (StatisticIsAlreadyExist e) {
       log.info("파일 저장중 충돌된 데이터가있습니다. 아래의 시간대를 확인 후 파일의 데이터 정합성을 확인해주세요.");
-      log.info("저장 대상 시간 : {}", statisticRecord.leaverRecord().recordTime());
+      log.info("저장 대상 시간 : {}", statisticRecord.leaverRecord().get().recordTime());
     }
   }
 }

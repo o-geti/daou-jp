@@ -1,6 +1,7 @@
 package com.minsu.kim.daoujapan.services.statistics.leaver;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -52,8 +53,8 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
   }
 
   @Override
-  public LeaverRecord saveStatistic(StatisticRecord statistic) {
-    return this.saveStatistic(statistic.leaverRecord());
+  public Optional<LeaverRecord> saveStatistic(StatisticRecord statistic) {
+    return statistic.leaverRecord().map(this::saveStatistic);
   }
 
   @Override

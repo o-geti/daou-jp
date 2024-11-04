@@ -1,6 +1,7 @@
 package com.minsu.kim.daoujapan.services.statistics;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 
@@ -18,7 +19,7 @@ public interface StatisticService<T> {
 
   T saveStatistic(T statistic);
 
-  T saveStatistic(StatisticRecord statistic);
+  Optional<T> saveStatistic(StatisticRecord statistic);
 
   void deleteStatistic(T statistic);
 }

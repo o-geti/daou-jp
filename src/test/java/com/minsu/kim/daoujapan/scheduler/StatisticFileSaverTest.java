@@ -75,11 +75,11 @@ class StatisticFileSaverTest {
         .atMost(3, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
-              assertThat(subscriberStatisticRepository.count()).isEqualTo(48);
-              assertThat(leaverStatisticRepository.count()).isEqualTo(48);
-              assertThat(paymentAmountStatisticRepository.count()).isEqualTo(48);
-              assertThat(usageAmountStatisticRepository.count()).isEqualTo(48);
-              assertThat(salesAmountStatisticRepository.count()).isEqualTo(48);
+              assertThat(subscriberStatisticRepository.count()).isEqualTo(46);
+              assertThat(leaverStatisticRepository.count()).isEqualTo(47);
+              assertThat(paymentAmountStatisticRepository.count()).isEqualTo(46);
+              assertThat(usageAmountStatisticRepository.count()).isEqualTo(47);
+              assertThat(salesAmountStatisticRepository.count()).isEqualTo(47);
             });
   }
 }

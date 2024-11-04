@@ -1,6 +1,7 @@
 package com.minsu.kim.daoujapan.services.statistics.sales;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -54,8 +55,8 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
   }
 
   @Override
-  public SalesAmountRecord saveStatistic(StatisticRecord statistic) {
-    return this.saveStatistic(statistic.salesAmountRecord());
+  public Optional<SalesAmountRecord> saveStatistic(StatisticRecord statistic) {
+    return statistic.salesAmountRecord().map(this::saveStatistic);
   }
 
   @Override

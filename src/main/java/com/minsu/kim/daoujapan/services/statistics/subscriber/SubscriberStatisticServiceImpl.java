@@ -1,6 +1,7 @@
 package com.minsu.kim.daoujapan.services.statistics.subscriber;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -55,8 +56,8 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
   }
 
   @Override
-  public SubscriberRecord saveStatistic(StatisticRecord statistic) {
-    return this.saveStatistic(statistic.subscriberRecord());
+  public Optional<SubscriberRecord> saveStatistic(StatisticRecord statistic) {
+    return statistic.subscriberRecord().map(this::saveStatistic);
   }
 
   @Override

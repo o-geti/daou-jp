@@ -1,6 +1,7 @@
 package com.minsu.kim.daoujapan.services.statistics.payment;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -54,8 +55,8 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
   }
 
   @Override
-  public PaymentAmountRecord saveStatistic(StatisticRecord statistic) {
-    return this.saveStatistic(statistic.paymentAmountRecord());
+  public Optional<PaymentAmountRecord> saveStatistic(StatisticRecord statistic) {
+    return statistic.paymentAmountRecord().map(this::saveStatistic);
   }
 
   @Override
