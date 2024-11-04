@@ -8,8 +8,8 @@ services:
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: true
       MYSQL_DATABASE: test_database
-      MYSQL_USER: daujapan
-      MYSQL_PASSWORD: dau1234!
+      MYSQL_USER: daoujapan
+      MYSQL_PASSWORD: daou1234!
       TZ: Asia/Seoul
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:

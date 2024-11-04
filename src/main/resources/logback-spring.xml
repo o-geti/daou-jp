@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="PROCESS_NAME" value="DAU_JAPAN_APP" />
+    <property name="PROCESS_NAME" value="DAOU_JAPAN_APP" />
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -21,7 +21,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.minsu.kim" level="DEBUG" />
+    <logger name="com.minsu.kim" level="INFO" />
 
     <root level="INFO">
         <appender-ref ref="Console" />
