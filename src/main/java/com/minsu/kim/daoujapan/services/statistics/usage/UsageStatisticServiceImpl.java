@@ -1,8 +1,3 @@
-/*
- * Copyright 2024 NHN (https://nhn.com) and others.
- * © NHN Corp. All rights reserved.
- */
-
 package com.minsu.kim.daoujapan.services.statistics.usage;
 
 import java.time.LocalDateTime;

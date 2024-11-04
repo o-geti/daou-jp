@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.minsu.kim.daoujapan.data.response.CommonResponse;
+import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.amount.PaymentAmountRecord;
 import com.minsu.kim.daoujapan.helper.LocalDateTimeParamChecker;
 import com.minsu.kim.daoujapan.services.statistics.StatisticService;
@@ -32,7 +33,7 @@ public class PaymentAmountController {
 
   @GetMapping
   @Operation(summary = "결제금액 통계 목록 조회", description = "시간대별로 결제금액 통계를 확인할 수 있습니다.")
-  public CommonResponse<Object> searchLeaverStatistic(
+  public CommonResponse<Paging<PaymentAmountRecord>> searchLeaverStatistic(
       @ParameterObject @ModelAttribute PaymentAmountRecord.Filter filter) {
     var filtered =
         localDateTimeParamChecker
