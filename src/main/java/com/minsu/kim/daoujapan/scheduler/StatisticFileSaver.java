@@ -6,8 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -43,9 +41,7 @@ public class StatisticFileSaver {
   public void commerceFileSaveToDatabase() {
 
     var directory = System.getProperty("user.dir");
-    var yesterDay =
-        LocalDateTime.now().minusDays(1L).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-    var fileName = "commerce-file-" + yesterDay;
+    var fileName = "example-statistic-file";
 
     fileScheduleConfig
         .getExtensions()
