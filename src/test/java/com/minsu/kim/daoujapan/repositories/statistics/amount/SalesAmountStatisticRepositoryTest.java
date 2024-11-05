@@ -65,4 +65,28 @@ class SalesAmountStatisticRepositoryTest {
     assertThat(isAvailable1).isTrue();
     assertThat(isAvailable2).isFalse();
   }
+
+
+  @Test
+  @DisplayName("삭제 된 데이터를 제외한 ID만을 검색한다.")
+  void findByDeleteDtIsNullAndId() {
+//    아래 주석이 첫번째 ID를 가진 탈퇴자 행
+//    INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUES ('2024-10-28 00:00:00', 5461947, null);
+
+    var optionalSalesAmount = repository.findByDeleteDtIsNullAndId(1L);
+    assertThat(optionalSalesAmount).isNotEmpty();
+    assertThat(optionalSalesAmount.get().getId()).isEqualTo(1L);
+    assertThat(optionalSalesAmount.get().getRecordTime()).isEqualTo(LocalDateTime.of(2024, 10, 28, 0, 0,0));
+    assertThat(optionalSalesAmount.get().getSalesAmount()).isEqualTo(5_461_947L);
+  }
+
+  @Test
+  @DisplayName("삭제 된 데이터를 검색할 경우 Optional.empty()가 나온다.")
+  void findByDeleteDtIsNullAndIdDeletedSearchCase() {
+//    아래 주석이 25번째 ID를 가진 탈퇴자 행
+//    INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUES ('2024-10-30 23:00:00', 123102471,
+//                                                                                   '2024-10-30 23:00:00');
+    var optionalSalesAmount = repository.findByDeleteDtIsNullAndId(25L);
+    assertThat(optionalSalesAmount).isEmpty();
+  }
 }

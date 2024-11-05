@@ -64,4 +64,27 @@ class SubscriberStatisticRepositoryTest {
     assertThat(isAvailable1).isTrue();
     assertThat(isAvailable2).isFalse();
   }
+
+
+  @Test
+  @DisplayName("삭제 된 데이터를 제외한 ID만을 검색한다.")
+  void findByDeleteDtIsNullAndId() {
+//    아래 주석이 첫번째 ID를 가진 탈퇴자 행
+//    INSERT INTO subscriber_statistics (record_time, subscriber_count, delete_dt) VALUES ('2024-10-28 00:00:00', 983, null);
+    var optionalLeaver = repository.findByDeleteDtIsNullAndId(1L);
+    assertThat(optionalLeaver).isNotEmpty();
+    assertThat(optionalLeaver.get().getId()).isEqualTo(1L);
+    assertThat(optionalLeaver.get().getRecordTime()).isEqualTo(LocalDateTime.of(2024, 10, 28, 0, 0,0));
+    assertThat(optionalLeaver.get().getSubscriberCount()).isEqualTo(983);
+  }
+
+  @Test
+  @DisplayName("삭제 된 데이터를 검색할 경우 Optional.empty()가 나온다.")
+  void findByDeleteDtIsNullAndIdDeletedSearchCase() {
+//    아래 주석이 25번째 ID를 가진 탈퇴자 행
+//    INSERT INTO subscriber_statistics (record_time, subscriber_count, delete_dt) VALUES ('2024-10-30 23:00:00', 638,
+//                                                                                     '2024-10-31 23:00:00');
+    var optionalLeaver = repository.findByDeleteDtIsNullAndId(25L);
+    assertThat(optionalLeaver).isEmpty();
+  }
 }
