@@ -75,17 +75,17 @@ class StatisticFileSaverTest {
         .atMost(3, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
-              // 기본 data.sql 24건
+              // 기본 data.sql 25건
               // example-statistic-file.csv 데이터 정상 24건
               // example-statistic-file.txt 전체 24건 중 전체 데이터 에러 1건, 가입자 수 데이터 에러 1건, 결제금액 데이터 에러 1건
-              assertThat(subscriberStatisticRepository.count()).isEqualTo(70); // 가입자 = 24 + 24 + 22
-              assertThat(leaverStatisticRepository.count()).isEqualTo(71); // 탈퇴자 = 24 + 24 + 23
+              assertThat(subscriberStatisticRepository.count()).isEqualTo(71); // 가입자 = 25 + 24 + 22
+              assertThat(leaverStatisticRepository.count()).isEqualTo(72); // 탈퇴자 = 25 + 24 + 23
               assertThat(paymentAmountStatisticRepository.count())
-                  .isEqualTo(70); // 결제금액 = 24 + 24 + 22
+                  .isEqualTo(71); // 결제금액 = 25 + 24 + 22
               assertThat(usageAmountStatisticRepository.count())
-                  .isEqualTo(71); // 사용금액 = 24 + 24 + 23
+                  .isEqualTo(72); // 사용금액 = 25 + 24 + 23
               assertThat(salesAmountStatisticRepository.count())
-                  .isEqualTo(71); // 매출금액 = 24 + 24 + 22
+                  .isEqualTo(72); // 매출금액 = 25 + 24 + 22
             });
   }
 }

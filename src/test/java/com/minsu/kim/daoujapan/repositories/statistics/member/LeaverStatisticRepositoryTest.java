@@ -38,4 +38,30 @@ class LeaverStatisticRepositoryTest {
     // data.sql의 leaver_statistics insert 문 가장 첫번째 값
     assertThat(result.getContent().getFirst().getLeaverCount()).isEqualTo(43);
   }
+
+  @Test
+  @DisplayName("삭제 시간이 null인 데이터만 뽑아와지는지 확인한다. (전체 데이터 25건중 1건만 삭제상태)")
+  void findAllByDeleteDtIsNull() {
+    // h2 초기화 쿼리에 테이블당 총 25개의 데이터가 들어있음.
+    // 이 중 1건은 삭제된 건
+    Pageable pageable = PageRequest.of(0, 30);
+
+    var result = repository.findAllByDeleteDtIsNull(pageable);
+
+    assertThat(result.getContent()).hasSize(24);
+    assertThat(result.getTotalPages()).isEqualTo(1);
+  }
+
+  @Test
+  @DisplayName("검색 날짜에 맞추어 존재하면 True, 없다면 false를 반환한다.")
+  void existsByRecordTime() {
+    var availableCase = LocalDateTime.of(2024, 10, 28, 0, 0, 0);
+    var notAvailableCase = LocalDateTime.of(2025, 10, 28, 21, 0, 0);
+
+    var isAvailable1 = repository.existsByRecordTime(availableCase);
+    var isAvailable2 = repository.existsByRecordTime(notAvailableCase);
+
+    assertThat(isAvailable1).isTrue();
+    assertThat(isAvailable2).isFalse();
+  }
 }

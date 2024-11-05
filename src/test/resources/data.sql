@@ -22,6 +22,8 @@ INSERT INTO subscriber_statistics (record_time, subscriber_count, delete_dt) VAL
 INSERT INTO subscriber_statistics (record_time, subscriber_count, delete_dt) VALUES ('2024-10-28 21:00:00', 894, null);
 INSERT INTO subscriber_statistics (record_time, subscriber_count, delete_dt) VALUES ('2024-10-28 22:00:00', 3, null);
 INSERT INTO subscriber_statistics (record_time, subscriber_count, delete_dt) VALUES ('2024-10-28 23:00:00', 638, null);
+INSERT INTO subscriber_statistics (record_time, subscriber_count, delete_dt) VALUES ('2024-10-30 23:00:00', 638,
+                                                                                     '2024-10-31 23:00:00');
 
 INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('2024-10-28 00:00:00', 43, null);
 INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('2024-10-28 01:00:00', 132, null);
@@ -47,6 +49,8 @@ INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('20
 INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('2024-10-28 21:00:00', 87, null);
 INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('2024-10-28 22:00:00', 140, null);
 INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('2024-10-28 23:00:00', 701, null);
+INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('2024-10-29 23:00:00', 701,
+                                                                             '2024-10-30 23:50:00');
 
 INSERT INTO payment_amount_statistics (record_time, payment_amount, delete_dt) VALUES ('2024-10-28 00:00:00', 5461947,
                                                                        null);
@@ -96,6 +100,8 @@ INSERT INTO payment_amount_statistics (record_time, payment_amount, delete_dt) V
                                                                        null);
 INSERT INTO payment_amount_statistics (record_time, payment_amount, delete_dt) VALUES ('2024-10-28 23:00:00', 8726527,
                                                                        null);
+INSERT INTO payment_amount_statistics (record_time, payment_amount, delete_dt) VALUES ('2024-10-29 23:00:00', 8726527,
+                                                                                       '2024-10-29 23:10:00');
 
 INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUES ('2024-10-28 00:00:00', 9315981, null);
 INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUES ('2024-10-28 01:00:00', 87090, null);
@@ -121,6 +127,8 @@ INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUE
 INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUES ('2024-10-28 21:00:00', 8606774, null);
 INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUES ('2024-10-28 22:00:00', 4333479, null);
 INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUES ('2024-10-28 23:00:00', 9018106, null);
+INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUES ('2024-10-29 23:00:00', 9018106,
+                                                                                   '2024-10-29 23:30:00');
 
 INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUES ('2024-10-28 00:00:00', 5461947, null);
 INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUES ('2024-10-28 01:00:00', 6989537, null);
@@ -145,4 +153,6 @@ INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUE
 INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUES ('2024-10-28 20:00:00', 104570175, null);
 INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUES ('2024-10-28 21:00:00', 108976131, null);
 INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUES ('2024-10-28 22:00:00', 114375944, null);
-INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUES ('2024-10-28 23:00:00', 123102471, null);
+INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUES ('2024-10-29 23:00:00', 123102471, null);
+INSERT INTO sales_amount_statistics (record_time, sales_amount, delete_dt) VALUES ('2024-10-30 23:00:00', 123102471,
+                                                                                   '2024-10-30 23:00:00');
