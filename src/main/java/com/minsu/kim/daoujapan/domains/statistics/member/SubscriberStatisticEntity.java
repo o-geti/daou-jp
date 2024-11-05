@@ -47,4 +47,13 @@ public class SubscriberStatisticEntity extends BaseEntity {
 
   @Comment("가입자수")
   private Integer subscriberCount;
+
+  public void modifyEntity(LocalDateTime recordTime, Integer subscriberCount) {
+    this.subscriberCount = subscriberCount;
+    this.recordTime = recordTime;
+  }
+
+  public void deleteStatistic() {
+    super.setDeleteDt(LocalDateTime.now());
+  }
 }

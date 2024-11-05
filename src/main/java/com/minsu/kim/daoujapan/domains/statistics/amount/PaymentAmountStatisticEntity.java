@@ -47,4 +47,13 @@ public class PaymentAmountStatisticEntity extends BaseEntity {
 
   @Comment("결제금액")
   private Long paymentAmount;
+
+  public void modifyEntity(LocalDateTime recordTime, Long paymentAmount) {
+    this.paymentAmount = paymentAmount;
+    this.recordTime = recordTime;
+  }
+
+  public void deleteStatistic() {
+    super.setDeleteDt(LocalDateTime.now());
+  }
 }

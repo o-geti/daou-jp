@@ -47,4 +47,13 @@ public class UsageAmountStatisticEntity extends BaseEntity {
 
   @Comment("사용금액")
   private Long usageAmount;
+
+  public void modifyEntity(LocalDateTime recordTime, Long usageAmount) {
+    this.usageAmount = usageAmount;
+    this.recordTime = recordTime;
+  }
+
+  public void deleteStatistic() {
+    super.setDeleteDt(LocalDateTime.now());
+  }
 }

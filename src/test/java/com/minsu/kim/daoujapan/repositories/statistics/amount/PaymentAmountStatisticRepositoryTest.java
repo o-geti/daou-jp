@@ -64,26 +64,29 @@ class PaymentAmountStatisticRepositoryTest {
     assertThat(isAvailable2).isFalse();
   }
 
-
   @Test
   @DisplayName("삭제 된 데이터를 제외한 ID만을 검색한다.")
   void findByDeleteDtIsNullAndId() {
-//    아래 주석이 첫번째 ID를 가진 탈퇴자 행
-//    INSERT INTO payment_amount_statistics (record_time, payment_amount, delete_dt) VALUES ('2024-10-28 00:00:00', 5461947,
-//                                                                       null);
+    //    아래 주석이 첫번째 ID를 가진 탈퇴자 행
+    //    INSERT INTO payment_amount_statistics (record_time, payment_amount, delete_dt) VALUES
+    // ('2024-10-28 00:00:00', 5461947,
+    //                                                                       null);
     var optionalPaymentAmount = repository.findByDeleteDtIsNullAndId(1L);
     assertThat(optionalPaymentAmount).isNotEmpty();
     assertThat(optionalPaymentAmount.get().getId()).isEqualTo(1L);
-    assertThat(optionalPaymentAmount.get().getRecordTime()).isEqualTo(LocalDateTime.of(2024, 10, 28, 0, 0,0));
+    assertThat(optionalPaymentAmount.get().getRecordTime())
+        .isEqualTo(LocalDateTime.of(2024, 10, 28, 0, 0, 0));
     assertThat(optionalPaymentAmount.get().getPaymentAmount()).isEqualTo(5_461_947);
   }
 
   @Test
   @DisplayName("삭제 된 데이터를 검색할 경우 Optional.empty()가 나온다.")
   void findByDeleteDtIsNullAndIdDeletedSearchCase() {
-//    아래 주석이 25번째 ID를 가진 탈퇴자 행
-//    INSERT INTO payment_amount_statistics (record_time, payment_amount, delete_dt) VALUES ('2024-10-29 23:00:00', 8726527,
-//                                                                                       '2024-10-29 23:10:00');
+    //    아래 주석이 25번째 ID를 가진 탈퇴자 행
+    //    INSERT INTO payment_amount_statistics (record_time, payment_amount, delete_dt) VALUES
+    // ('2024-10-29 23:00:00', 8726527,
+    //
+    // '2024-10-29 23:10:00');
     var optionalPaymentAmount = repository.findByDeleteDtIsNullAndId(25L);
     assertThat(optionalPaymentAmount).isEmpty();
   }

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.StatisticRecord;
 import com.minsu.kim.daoujapan.data.statistics.amount.SalesAmountRecord;
+import com.minsu.kim.daoujapan.exception.NotFoundException;
 import com.minsu.kim.daoujapan.exception.StatisticIsAlreadyExist;
 import com.minsu.kim.daoujapan.mapper.statistics.amount.SalesAmountMapper;
 import com.minsu.kim.daoujapan.repositories.statistics.amount.SalesAmountStatisticRepository;
@@ -66,12 +67,25 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
     return statistic.salesAmountRecord().map(this::saveStatistic);
   }
 
+  @Transactional
   @Override
   public SalesAmountRecord updateStatistic(SalesAmountRecord statistic) {
-    return null;
+    var salesAmountStatisticEntity =
+        salesAmountStatisticRepository
+            .findByDeleteDtIsNullAndId(statistic.id())
+            .orElseThrow(() -> new NotFoundException("매출금액 정보를 찾을 수 없습니다."));
+
+    salesAmountStatisticEntity.modifyEntity(statistic.recordTime(), statistic.salesAmount());
+
+    return salesAmountMapper.entityToDto(salesAmountStatisticEntity);
   }
 
   @Transactional
   @Override
-  public void deleteStatistic(Long statisticId) {}
+  public void deleteStatistic(Long statisticId) {
+    salesAmountStatisticRepository
+        .findByDeleteDtIsNullAndId(statisticId)
+        .orElseThrow(() -> new NotFoundException("매출금액 정보를 찾을 수 없습니다."))
+        .deleteStatistic();
+  }
 }

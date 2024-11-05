@@ -133,8 +133,8 @@ class LeaverStatisticServiceImplTest {
   }
 
   @Test
-  @DisplayName("탈퇴자 수에 대한 통계값을 수정합니다.")
-  void updateStatisticIfNotExsistThenThrow() {
+  @DisplayName("탈퇴자 수에 대한 통계값을 수정시 존재하지않으면 에러를 발생합니다.")
+  void updateStatisticIfNotExistThenThrow() {
     // given
     given(repository.findByDeleteDtIsNullAndId(anyLong())).willReturn(Optional.empty());
 
@@ -145,6 +145,7 @@ class LeaverStatisticServiceImplTest {
   }
 
   @Test
+  @DisplayName("탈퇴자 수에 대한 통계값을 삭제합니다.")
   void deleteStatistic() {
     var optionalMockUpdateTarget = TestDummy.findLeaverStatisticNotDeletedEntityMock();
     var mockUpdateTarget = optionalMockUpdateTarget.get();
@@ -158,6 +159,18 @@ class LeaverStatisticServiceImplTest {
     // then
     then(mockUpdateTarget).should(times(1)).deleteStatistic();
     assertThat(mockUpdateTarget.getDeleteDt()).isNotNull().isInstanceOf(LocalDateTime.class);
+  }
+
+  @Test
+  @DisplayName("탈퇴자 수에 데이터를 삭제시 존재하지않으면 에러를 발생합니다.")
+  void deleteStatisticIfNotExistThenThrow() {
+    // given
+    given(repository.findByDeleteDtIsNullAndId(anyLong())).willReturn(Optional.empty());
+
+    // when
+    assertThatThrownBy(() -> leaverStatisticService.deleteStatistic(1L))
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("탈퇴자 정보를 찾을 수 없습니다.");
   }
 
   public static class TestDummy {

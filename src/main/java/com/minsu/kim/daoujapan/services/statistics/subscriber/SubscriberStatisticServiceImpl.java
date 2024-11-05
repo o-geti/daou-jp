@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.StatisticRecord;
 import com.minsu.kim.daoujapan.data.statistics.member.SubscriberRecord;
+import com.minsu.kim.daoujapan.exception.NotFoundException;
 import com.minsu.kim.daoujapan.exception.StatisticIsAlreadyExist;
 import com.minsu.kim.daoujapan.mapper.statistics.member.SubscriberMapper;
 import com.minsu.kim.daoujapan.repositories.statistics.member.SubscriberStatisticRepository;
@@ -66,12 +67,25 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
     return statistic.subscriberRecord().map(this::saveStatistic);
   }
 
+  @Transactional
   @Override
   public SubscriberRecord updateStatistic(SubscriberRecord statistic) {
-    return null;
+    var subscriberStatisticEntity =
+        subscriberStatisticRepository
+            .findByDeleteDtIsNullAndId(statistic.id())
+            .orElseThrow(() -> new NotFoundException("가입자 정보를 찾을 수 없습니다."));
+
+    subscriberStatisticEntity.modifyEntity(statistic.recordTime(), statistic.subscriberCount());
+
+    return subscriberMapper.entityToDto(subscriberStatisticEntity);
   }
 
   @Transactional
   @Override
-  public void deleteStatistic(Long statisticId) {}
+  public void deleteStatistic(Long statisticId) {
+    subscriberStatisticRepository
+        .findByDeleteDtIsNullAndId(statisticId)
+        .orElseThrow(() -> new NotFoundException("가입자 정보를 찾을 수 없습니다."))
+        .deleteStatistic();
+  }
 }

@@ -1,13 +1,17 @@
 package com.minsu.kim.daoujapan.services.statistics.sales;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.minsu.kim.daoujapan.data.statistics.amount.SalesAmountRecord;
 import com.minsu.kim.daoujapan.domains.statistics.amount.SalesAmountStatisticEntity;
+import com.minsu.kim.daoujapan.exception.NotFoundException;
 import com.minsu.kim.daoujapan.mapper.statistics.amount.SalesAmountMapperImpl;
 import com.minsu.kim.daoujapan.repositories.statistics.amount.SalesAmountStatisticRepository;
 
@@ -111,10 +116,70 @@ class SalesStatisticServiceImplTest {
   }
 
   @Test
-  void updateStatistic() {}
+  @DisplayName("매출금액에 대한 통계값을 수정합니다.")
+  void updateStatistic() {
+    var optionalMockUpdateTarget = TestDummy.findSalesAmountStatisticNotDeletedEntityMock();
+    var mockUpdateTarget = optionalMockUpdateTarget.get();
+
+    // given
+    given(salesAmountStatisticRepository.findByDeleteDtIsNullAndId(anyLong()))
+        .willReturn(optionalMockUpdateTarget);
+
+    // when
+    var updateForDummy = TestDummy.updateForDummy();
+    var updatedStatistic = salesStatisticService.updateStatistic(TestDummy.updateForDummy());
+
+    // then
+    then(mockUpdateTarget)
+        .should(times(1))
+        .modifyEntity(updateForDummy.recordTime(), updateForDummy.salesAmount());
+    assertThat(updatedStatistic.salesAmount()).isEqualTo(updateForDummy.salesAmount());
+    assertThat(updatedStatistic.recordTime()).isEqualTo(updateForDummy.recordTime());
+  }
 
   @Test
-  void deleteStatistic() {}
+  @DisplayName("매출금액에 대한 통계값을 수정시 존재하지않으면 에러를 발생합니다.")
+  void updateStatisticIfNotExistThenThrow() {
+    // given
+    given(salesAmountStatisticRepository.findByDeleteDtIsNullAndId(anyLong()))
+        .willReturn(Optional.empty());
+
+    // when, then
+    assertThatThrownBy(() -> salesStatisticService.updateStatistic(TestDummy.updateForDummy()))
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("매출금액 정보를 찾을 수 없습니다.");
+  }
+
+  @Test
+  @DisplayName("매출금액에 대한 통계값을 삭제합니다.")
+  void deleteStatistic() {
+    var optionalMockUpdateTarget = TestDummy.findSalesAmountStatisticNotDeletedEntityMock();
+    var mockUpdateTarget = optionalMockUpdateTarget.get();
+
+    // given
+    given(salesAmountStatisticRepository.findByDeleteDtIsNullAndId(anyLong()))
+        .willReturn(optionalMockUpdateTarget);
+
+    // when
+    salesStatisticService.deleteStatistic(1L);
+
+    // then
+    then(mockUpdateTarget).should(times(1)).deleteStatistic();
+    assertThat(mockUpdateTarget.getDeleteDt()).isNotNull().isInstanceOf(LocalDateTime.class);
+  }
+
+  @Test
+  @DisplayName("매출금액 데이터를 삭제시 존재하지않으면 에러를 발생합니다.")
+  void deleteStatisticIfNotExistThenThrow() {
+    // given
+    given(salesAmountStatisticRepository.findByDeleteDtIsNullAndId(anyLong()))
+        .willReturn(Optional.empty());
+
+    // when
+    assertThatThrownBy(() -> salesStatisticService.deleteStatistic(1L))
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("매출금액 정보를 찾을 수 없습니다.");
+  }
 
   public static class TestDummy {
 
@@ -154,6 +219,29 @@ class SalesStatisticServiceImplTest {
 
       var pageRequest = PageRequest.of(0, 3);
       return (new PageImpl<>(List.of(elem1, elem2, elem3), pageRequest, 3));
+    }
+
+    public static Optional<SalesAmountStatisticEntity>
+        findSalesAmountStatisticNotDeletedEntityMock() {
+      var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+
+      return Optional.of(
+          spy(
+              SalesAmountStatisticEntity.builder()
+                  .id(1L)
+                  .recordTime(datetime)
+                  .salesAmount(1_000_000L)
+                  .build()));
+    }
+
+    public static SalesAmountRecord updateForDummy() {
+      var datetime = LocalDateTime.of(2024, 11, 4, 0, 0, 0);
+
+      return SalesAmountRecord.builder()
+          .id(1L)
+          .recordTime(datetime)
+          .salesAmount(1_000_000L)
+          .build();
     }
   }
 }

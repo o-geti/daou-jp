@@ -47,4 +47,13 @@ public class SalesAmountStatisticEntity extends BaseEntity {
 
   @Comment("매출금액")
   private Long salesAmount;
+
+  public void modifyEntity(LocalDateTime recordTime, Long salesAmount) {
+    this.salesAmount = salesAmount;
+    this.recordTime = recordTime;
+  }
+
+  public void deleteStatistic() {
+    super.setDeleteDt(LocalDateTime.now());
+  }
 }

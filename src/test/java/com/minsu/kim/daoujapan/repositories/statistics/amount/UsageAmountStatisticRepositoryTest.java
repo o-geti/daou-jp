@@ -68,21 +68,24 @@ class UsageAmountStatisticRepositoryTest {
   @Test
   @DisplayName("삭제 된 데이터를 제외한 ID만을 검색한다.")
   void findByDeleteDtIsNullAndId() {
-//    아래 주석이 첫번째 ID를 가진 탈퇴자 행
-//    INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUES ('2024-10-28 00:00:00', 9315981, null);
+    //    아래 주석이 첫번째 ID를 가진 탈퇴자 행
+    //    INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUES
+    // ('2024-10-28 00:00:00', 9315981, null);
     var optionalUsageAmount = repository.findByDeleteDtIsNullAndId(1L);
 
     assertThat(optionalUsageAmount).isNotEmpty();
     assertThat(optionalUsageAmount.get().getId()).isEqualTo(1L);
-    assertThat(optionalUsageAmount.get().getRecordTime()).isEqualTo(LocalDateTime.of(2024, 10, 28, 0, 0,0));
+    assertThat(optionalUsageAmount.get().getRecordTime())
+        .isEqualTo(LocalDateTime.of(2024, 10, 28, 0, 0, 0));
     assertThat(optionalUsageAmount.get().getUsageAmount()).isEqualTo(9_315_981);
   }
 
   @Test
   @DisplayName("삭제 된 데이터를 검색할 경우 Optional.empty()가 나온다.")
   void findByDeleteDtIsNullAndIdDeletedSearchCase() {
-//    아래 주석이 25번째 ID를 가진 탈퇴자 행
-//    INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUES ('2024-10-29 23:00:00', 9018106,'2024-10-29 23:30:00')
+    //    아래 주석이 25번째 ID를 가진 탈퇴자 행
+    //    INSERT INTO usage_amount_statistics (record_time, usage_amount, delete_dt) VALUES
+    // ('2024-10-29 23:00:00', 9018106,'2024-10-29 23:30:00')
     var optionalUsageAmount = repository.findByDeleteDtIsNullAndId(25L);
     assertThat(optionalUsageAmount).isEmpty();
   }

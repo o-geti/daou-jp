@@ -68,20 +68,23 @@ class LeaverStatisticRepositoryTest {
   @Test
   @DisplayName("삭제 된 데이터를 제외한 ID만을 검색한다.")
   void findByDeleteDtIsNullAndId() {
-//    아래 주석이 첫번째 ID를 가진 탈퇴자 행
-//    INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('2024-10-28 00:00:00', 43, null)
+    //    아래 주석이 첫번째 ID를 가진 탈퇴자 행
+    //    INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('2024-10-28
+    // 00:00:00', 43, null)
     var optionalLeaver = repository.findByDeleteDtIsNullAndId(1L);
     assertThat(optionalLeaver).isNotEmpty();
     assertThat(optionalLeaver.get().getId()).isEqualTo(1L);
-    assertThat(optionalLeaver.get().getRecordTime()).isEqualTo(LocalDateTime.of(2024, 10, 28, 0, 0,0));
+    assertThat(optionalLeaver.get().getRecordTime())
+        .isEqualTo(LocalDateTime.of(2024, 10, 28, 0, 0, 0));
     assertThat(optionalLeaver.get().getLeaverCount()).isEqualTo(43);
   }
 
   @Test
   @DisplayName("삭제 된 데이터를 검색할 경우 Optional.empty()가 나온다.")
   void findByDeleteDtIsNullAndIdDeletedSearchCase() {
-//    아래 주석이 25번째 ID를 가진 탈퇴자 행
-//    INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('2024-10-29 23:00:00', 701,'2024-10-30 23:50:00')
+    //    아래 주석이 25번째 ID를 가진 탈퇴자 행
+    //    INSERT INTO leaver_statistics (record_time, leaver_count, delete_dt) VALUES ('2024-10-29
+    // 23:00:00', 701,'2024-10-30 23:50:00')
     var optionalLeaver = repository.findByDeleteDtIsNullAndId(25L);
     assertThat(optionalLeaver).isEmpty();
   }

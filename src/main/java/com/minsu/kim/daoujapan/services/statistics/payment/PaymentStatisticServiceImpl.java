@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.StatisticRecord;
 import com.minsu.kim.daoujapan.data.statistics.amount.PaymentAmountRecord;
+import com.minsu.kim.daoujapan.exception.NotFoundException;
 import com.minsu.kim.daoujapan.exception.StatisticIsAlreadyExist;
 import com.minsu.kim.daoujapan.mapper.statistics.amount.PaymentAmountMapper;
 import com.minsu.kim.daoujapan.repositories.statistics.amount.PaymentAmountStatisticRepository;
@@ -65,12 +66,25 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
     return statistic.paymentAmountRecord().map(this::saveStatistic);
   }
 
+  @Transactional
   @Override
   public PaymentAmountRecord updateStatistic(PaymentAmountRecord statistic) {
-    return null;
+    var paymentAmountStatisticEntity =
+        paymentAmountStatisticRepository
+            .findByDeleteDtIsNullAndId(statistic.id())
+            .orElseThrow(() -> new NotFoundException("결제금액 정보를 찾을 수 없습니다."));
+
+    paymentAmountStatisticEntity.modifyEntity(statistic.recordTime(), statistic.paymentAmount());
+
+    return paymentAmountMapper.entityToDto(paymentAmountStatisticEntity);
   }
 
   @Transactional
   @Override
-  public void deleteStatistic(Long statisticId) {}
+  public void deleteStatistic(Long statisticId) {
+    paymentAmountStatisticRepository
+        .findByDeleteDtIsNullAndId(statisticId)
+        .orElseThrow(() -> new NotFoundException("결제금액 정보를 찾을 수 없습니다."))
+        .deleteStatistic();
+  }
 }

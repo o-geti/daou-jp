@@ -1,13 +1,17 @@
 package com.minsu.kim.daoujapan.services.statistics.subscriber;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.minsu.kim.daoujapan.data.statistics.member.SubscriberRecord;
 import com.minsu.kim.daoujapan.domains.statistics.member.SubscriberStatisticEntity;
+import com.minsu.kim.daoujapan.exception.NotFoundException;
 import com.minsu.kim.daoujapan.mapper.statistics.member.SubscriberMapperImpl;
 import com.minsu.kim.daoujapan.repositories.statistics.member.SubscriberStatisticRepository;
 
@@ -108,10 +113,66 @@ class SubscriberStatisticServiceImplTest {
   }
 
   @Test
-  void updateStatistic() {}
+  @DisplayName("가입자 수에 대한 통계값을 수정합니다.")
+  void updateStatistic() {
+    var optionalMockUpdateTarget = TestDummy.findSubscriberStatisticNotDeletedEntityMock();
+    var mockUpdateTarget = optionalMockUpdateTarget.get();
+
+    // given
+    given(repository.findByDeleteDtIsNullAndId(anyLong())).willReturn(optionalMockUpdateTarget);
+
+    // when
+    var updateForDummy = TestDummy.updateForDummy();
+    var updatedStatistic = service.updateStatistic(TestDummy.updateForDummy());
+
+    // then
+    then(mockUpdateTarget)
+        .should(times(1))
+        .modifyEntity(updateForDummy.recordTime(), updateForDummy.subscriberCount());
+    assertThat(updatedStatistic.subscriberCount()).isEqualTo(updateForDummy.subscriberCount());
+    assertThat(updatedStatistic.recordTime()).isEqualTo(updateForDummy.recordTime());
+  }
 
   @Test
-  void deleteStatistic() {}
+  @DisplayName("가입자 수에 대한 통계값을 수정시 존재하지않으면 에러를 발생합니다.")
+  void updateStatisticIfNotExistThenThrow() {
+    // given
+    given(repository.findByDeleteDtIsNullAndId(anyLong())).willReturn(Optional.empty());
+
+    // when, then
+    assertThatThrownBy(() -> service.updateStatistic(TestDummy.updateForDummy()))
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("가입자 정보를 찾을 수 없습니다.");
+  }
+
+  @Test
+  @DisplayName("가입자 수에 대한 통계값을 삭제합니다.")
+  void deleteStatistic() {
+    var optionalMockUpdateTarget = TestDummy.findSubscriberStatisticNotDeletedEntityMock();
+    var mockUpdateTarget = optionalMockUpdateTarget.get();
+
+    // given
+    given(repository.findByDeleteDtIsNullAndId(anyLong())).willReturn(optionalMockUpdateTarget);
+
+    // when
+    service.deleteStatistic(1L);
+
+    // then
+    then(mockUpdateTarget).should(times(1)).deleteStatistic();
+    assertThat(mockUpdateTarget.getDeleteDt()).isNotNull().isInstanceOf(LocalDateTime.class);
+  }
+
+  @Test
+  @DisplayName("가입자 데이터를 삭제시 존재하지않으면 에러를 발생합니다.")
+  void deleteStatisticIfNotExistThenThrow() {
+    // given
+    given(repository.findByDeleteDtIsNullAndId(anyLong())).willReturn(Optional.empty());
+
+    // when
+    assertThatThrownBy(() -> service.deleteStatistic(1L))
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("가입자 정보를 찾을 수 없습니다.");
+  }
 
   public static class TestDummy {
     public static SubscriberStatisticEntity findSubscriberStatisticEntitySuit() {
@@ -150,6 +211,25 @@ class SubscriberStatisticServiceImplTest {
 
       var pageRequest = PageRequest.of(0, 3);
       return (new PageImpl<>(List.of(elem1, elem2, elem3), pageRequest, 3));
+    }
+
+    public static Optional<SubscriberStatisticEntity>
+        findSubscriberStatisticNotDeletedEntityMock() {
+      var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+
+      return Optional.of(
+          spy(
+              SubscriberStatisticEntity.builder()
+                  .id(1L)
+                  .recordTime(datetime)
+                  .subscriberCount(10)
+                  .build()));
+    }
+
+    public static SubscriberRecord updateForDummy() {
+      var datetime = LocalDateTime.of(2024, 11, 4, 0, 0, 0);
+
+      return SubscriberRecord.builder().id(1L).recordTime(datetime).subscriberCount(10).build();
     }
   }
 }
