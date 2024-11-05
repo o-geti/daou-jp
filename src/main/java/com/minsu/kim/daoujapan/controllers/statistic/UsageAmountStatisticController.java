@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.minsu.kim.daoujapan.data.request.LeaverRequest;
+import com.minsu.kim.daoujapan.data.request.UsageAmountRequest;
 import com.minsu.kim.daoujapan.data.response.CommonResponse;
 import com.minsu.kim.daoujapan.data.response.Paging;
-import com.minsu.kim.daoujapan.data.statistics.member.LeaverRecord;
+import com.minsu.kim.daoujapan.data.statistics.amount.UsageAmountRecord;
 import com.minsu.kim.daoujapan.helper.LocalDateTimeParamChecker;
 import com.minsu.kim.daoujapan.services.statistics.StatisticService;
 
@@ -34,19 +34,19 @@ import com.minsu.kim.daoujapan.services.statistics.StatisticService;
  * @since 1.0
  */
 @RestController
-@Tag(name = "탈퇴자 통계 컨트롤러.")
+@Tag(name = "사용금액 통계 컨트롤러.")
 @Slf4j
-@RequestMapping("/v1/statistic/leaver")
+@RequestMapping("/v1/statistic/usage-amount")
 @RequiredArgsConstructor
-public class LeaverStatisticController {
+public class UsageAmountStatisticController {
 
-  private final StatisticService<LeaverRecord> leaverRecordStatisticService;
+  private final StatisticService<UsageAmountRecord> usageAmountRecordStatisticService;
   private final LocalDateTimeParamChecker localDateTimeParamChecker;
 
   @GetMapping
-  @Operation(summary = "탈퇴자 통계 목록 조회", description = "시간대별로 탈퇴자의 통계를 확인할 수 있습니다.")
-  public CommonResponse<Paging<LeaverRecord>> searchLeaverStatistic(
-      @ParameterObject @ModelAttribute LeaverRecord.Filter filter) {
+  @Operation(summary = "사용금액 통계 목록 조회", description = "시간대별로 사용금액 통계를 확인할 수 있습니다.")
+  public CommonResponse<Paging<UsageAmountRecord>> searchUsageAmountStatistic(
+      @ParameterObject @ModelAttribute UsageAmountRecord.Filter filter) {
     var filtered =
         localDateTimeParamChecker
             .checkForBetweenFromAndTo(filter.getSearchFrom(), filter.getSearchTo())
@@ -55,51 +55,53 @@ public class LeaverStatisticController {
     var pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
     if (!filtered) {
-      return CommonResponse.responseSuccess(leaverRecordStatisticService.findStatistics(pageable));
+      return CommonResponse.responseSuccess(
+          usageAmountRecordStatisticService.findStatistics(pageable));
     }
 
     return CommonResponse.responseSuccess(
-        leaverRecordStatisticService.findStatisticsByDateTime(
+        usageAmountRecordStatisticService.findStatisticsByDateTime(
             filter.getSearchFrom(), filter.getSearchTo(), pageable));
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "탈퇴자 통계 단건 등록", description = "탈퇴자의 통계 수치를 등록할 수 있습니다.")
-  public CommonResponse<LeaverRecord> registerLeaverStatistic(
-      @RequestBody @Valid LeaverRequest leaverRequest) {
+  @Operation(summary = "사용금액 통계 단건 등록", description = "사용금액의 통계 수치를 등록할 수 있습니다.")
+  public CommonResponse<UsageAmountRecord> registerLeaverStatistic(
+      @RequestBody @Valid UsageAmountRequest usageAmountRequest) {
 
     var newLeaver =
-        LeaverRecord.builder()
-            .leaverCount(leaverRequest.leaverCount())
-            .recordTime(leaverRequest.recordTime())
+        UsageAmountRecord.builder()
+            .usageAmount(usageAmountRequest.usageAmount())
+            .recordTime(usageAmountRequest.recordTime())
             .build();
 
-    return CommonResponse.responseCreated(leaverRecordStatisticService.saveStatistic(newLeaver));
+    return CommonResponse.responseCreated(
+        usageAmountRecordStatisticService.saveStatistic(newLeaver));
   }
 
   @PutMapping("/{id}")
-  @Operation(summary = "탈퇴자 통계 수정", description = "탈퇴자의 통계 수치를 수정할 수 있습니다.")
-  public CommonResponse<LeaverRecord> updateLeaverStatistic(
+  @Operation(summary = "사용금액 통계 수정", description = "사용금액의 통계 수치를 수정할 수 있습니다.")
+  public CommonResponse<UsageAmountRecord> updateLeaverStatistic(
       @Valid @NotNull @Min(1) @PathVariable Long id,
-      @Valid @RequestBody LeaverRequest leaberRequest) {
+      @Valid @RequestBody UsageAmountRequest usageAmountRequest) {
 
     var updateLeaverStatistic =
-        LeaverRecord.builder()
+        UsageAmountRecord.builder()
             .id(id)
-            .leaverCount(leaberRequest.leaverCount())
-            .recordTime(leaberRequest.recordTime())
+            .usageAmount(usageAmountRequest.usageAmount())
+            .recordTime(usageAmountRequest.recordTime())
             .build();
 
     return CommonResponse.responseSuccess(
-        leaverRecordStatisticService.updateStatistic(updateLeaverStatistic));
+        usageAmountRecordStatisticService.updateStatistic(updateLeaverStatistic));
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "탈퇴자 통계 삭제", description = "탈퇴자의 통계 수치를 삭제 할 수 있습니다.")
+  @Operation(summary = "사용금액 통계 삭제", description = "사용금액의 통계 수치를 삭제 할 수 있습니다.")
   public Void deleteLeaverStatistic(@Valid @NotNull @Min(1) @PathVariable Long id) {
-    leaverRecordStatisticService.deleteStatistic(id);
+    usageAmountRecordStatisticService.deleteStatistic(id);
 
     return null;
   }

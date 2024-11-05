@@ -72,7 +72,7 @@ class LeaverStatisticControllerTest {
   }
 
   @Test
-  @DisplayName("닐찌필터추가 후 기본값 페이징 조회 요청하기")
+  @DisplayName("날짜 필터추가 후 기본값 페이징 조회 요청하기")
   void testSearchLeaverStatisticWithFilter() throws Exception {
     LocalDateTime from = LocalDateTime.now().minusDays(1);
     LocalDateTime to = LocalDateTime.now();
@@ -102,7 +102,7 @@ class LeaverStatisticControllerTest {
   }
 
   @Test
-  @DisplayName("닐찌 필터 공통 에러 핸들러 응답 확인")
+  @DisplayName("닐짜 필터 공통 에러 핸들러 응답 확인")
   void testSearchLeaverStatisticWithFilterError() throws Exception {
     LocalDateTime from = LocalDateTime.now();
     LocalDateTime to = LocalDateTime.now().minusDays(1);

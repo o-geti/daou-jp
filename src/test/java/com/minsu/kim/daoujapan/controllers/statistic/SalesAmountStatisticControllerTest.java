@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.minsu.kim.daoujapan.data.request.SubscriberRequest;
+import com.minsu.kim.daoujapan.data.request.SalesAmountRequest;
 import com.minsu.kim.daoujapan.exception.NotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,7 +33,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.minsu.kim.daoujapan.data.response.Paging;
-import com.minsu.kim.daoujapan.data.statistics.member.SubscriberRecord;
+import com.minsu.kim.daoujapan.data.statistics.amount.SalesAmountRecord;
 import com.minsu.kim.daoujapan.exception.ValidateCheckError;
 import com.minsu.kim.daoujapan.helper.LocalDateTimeParamChecker;
 import com.minsu.kim.daoujapan.services.statistics.StatisticService;
@@ -42,37 +42,37 @@ import com.minsu.kim.daoujapan.services.statistics.StatisticService;
  * @author minsu.kim
  * @since 1.0
  */
-@WebMvcTest(SubscriberStatisticController.class)
-class SubscriberStatisticControllerTest {
+@WebMvcTest(SalesAmountStatisticController.class)
+class SalesAmountStatisticControllerTest {
 
   @Autowired MockMvc mvc;
 
   @Autowired ObjectMapper objectMapper;
 
-  @MockBean StatisticService<SubscriberRecord> subscriberRecordStatisticService;
+  @MockBean StatisticService<SalesAmountRecord> salesAmountRecordStatisticService;
   @MockBean LocalDateTimeParamChecker checker;
 
   @Test
   @DisplayName("필터없이 페이징 조회 요청하기")
-  void testSearchSubscriberStatisticWithoutFilter() throws Exception {
+  void testSearchSalesAmountStatisticWithoutFilter() throws Exception {
     given(checker.checkForBetweenFromAndTo(null, null)).willReturn(Optional.empty());
 
-    given(subscriberRecordStatisticService.findStatistics(any()))
-        .willReturn(TestDummy.findAllSubScribeRecords());
+    given(salesAmountRecordStatisticService.findStatistics(any()))
+        .willReturn(TestDummy.findAllSalesAmountRecords());
 
-    mvc.perform(get("/v1/statistic/subscriber").param("page", "0").param("size", "10"))
+    mvc.perform(get("/v1/statistic/sales-amount").param("page", "0").param("size", "10"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value(200))
         .andExpect(jsonPath("$.data").exists())
         .andExpect(jsonPath("$.data.content.size()").value(3))
         .andDo(print());
 
-    then(subscriberRecordStatisticService).should(times(1)).findStatistics(any(Pageable.class));
+    then(salesAmountRecordStatisticService).should(times(1)).findStatistics(any(Pageable.class));
   }
 
   @Test
   @DisplayName("날짜 필터추가 후 기본값 페이징 조회 요청하기")
-  void testSearchSubscriberStatisticWithFilter() throws Exception {
+  void testSearchSalesAmountStatisticWithFilter() throws Exception {
     LocalDateTime from = LocalDateTime.now().minusDays(1);
     LocalDateTime to = LocalDateTime.now();
 
@@ -82,11 +82,11 @@ class SubscriberStatisticControllerTest {
     given(checker.checkForBetweenFromAndTo(any(LocalDateTime.class), any(LocalDateTime.class)))
         .willReturn(Optional.of(true));
 
-    given(subscriberRecordStatisticService.findStatisticsByDateTime(any(), any(), any()))
-        .willReturn(TestDummy.findAllSubScribeRecords());
+    given(salesAmountRecordStatisticService.findStatisticsByDateTime(any(), any(), any()))
+        .willReturn(TestDummy.findAllSalesAmountRecords());
 
     mvc.perform(
-            get("/v1/statistic/subscriber")
+            get("/v1/statistic/sales-amount")
                 .param("searchFrom", fromString)
                 .param("searchTo", toString))
         .andExpect(status().isOk())
@@ -97,14 +97,14 @@ class SubscriberStatisticControllerTest {
         .andExpect(jsonPath("$.data.pageNumber").value(0))
         .andDo(print());
 
-    then(subscriberRecordStatisticService)
+    then(salesAmountRecordStatisticService)
         .should(times(1))
         .findStatisticsByDateTime(any(), any(), any());
   }
 
   @Test
   @DisplayName("닐짜 필터 공통 에러 핸들러 응답 확인")
-  void testSearchSubscriberStatisticWithFilterError() throws Exception {
+  void testSearchSalesAmountStatisticWithFilterError() throws Exception {
     LocalDateTime from = LocalDateTime.now();
     LocalDateTime to = LocalDateTime.now().minusDays(1);
 
@@ -115,11 +115,11 @@ class SubscriberStatisticControllerTest {
     given(checker.checkForBetweenFromAndTo(any(LocalDateTime.class), any(LocalDateTime.class)))
         .willThrow(new ValidateCheckError(errorString));
 
-    given(subscriberRecordStatisticService.findStatisticsByDateTime(any(), any(), any()))
-        .willReturn(TestDummy.findAllSubScribeRecords());
+    given(salesAmountRecordStatisticService.findStatisticsByDateTime(any(), any(), any()))
+        .willReturn(TestDummy.findAllSalesAmountRecords());
 
     mvc.perform(
-            get("/v1/statistic/subscriber")
+            get("/v1/statistic/sales-amount")
                 .param("searchFrom", fromString)
                 .param("searchTo", toString))
         .andExpect(status().isBadRequest())
@@ -128,91 +128,91 @@ class SubscriberStatisticControllerTest {
         .andExpect(jsonPath("$.data").value(errorString))
         .andDo(print());
 
-    then(subscriberRecordStatisticService)
+    then(salesAmountRecordStatisticService)
         .should(times(0))
         .findStatisticsByDateTime(any(), any(), any());
   }
 
   @Test
   @DisplayName("데이터 생성")
-  void testCreateSearchLeaverStatistic() throws Exception {
-    var data = TestDummy.createSubscribeRecord();
+  void testCreateSearchUsageAmountStatistic() throws Exception {
+    var data = TestDummy.createSalesAmountRecord();
 
-    given(subscriberRecordStatisticService.saveStatistic(data))
-        .willReturn(TestDummy.findSubscriberRecord());
+    given(salesAmountRecordStatisticService.saveStatistic(data))
+        .willReturn(TestDummy.findSalesAmountRecord());
 
     var datetime =
         LocalDateTime.of(2024, 11, 3, 0, 0, 0)
                      .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 
     mvc.perform(
-           post("/v1/statistic/subscriber")
+           post("/v1/statistic/sales-amount")
                .contentType(MediaType.APPLICATION_JSON)
                .content(
                    objectMapper.writeValueAsBytes(
-                       new SubscriberRequest(data.recordTime(), data.subscriberCount()))))
+                       new SalesAmountRequest(data.recordTime(), data.salesAmount()))))
        .andExpect(status().isCreated())
        .andExpect(jsonPath("$.status").value(201))
        .andExpect(jsonPath("$.data").exists())
        .andExpect(jsonPath("$.data.id").value(1))
        .andExpect(jsonPath("$.data.recordTime").value(datetime))
-       .andExpect(jsonPath("$.data.subscriberCount").value(1))
+       .andExpect(jsonPath("$.data.salesAmount").value(100_000L))
        .andDo(print());
 
-    then(subscriberRecordStatisticService).should(times(1)).saveStatistic(data);
+    then(salesAmountRecordStatisticService).should(times(1)).saveStatistic(data);
   }
 
   @Test
   @DisplayName("데이터 생성 밸리데이션 에러")
-  void testCreateSearchLeaverStatisticValuidError() throws Exception {
-    var data = TestDummy.createSubscribeRecord();
+  void testCreateSearchUsageAmountStatisticValidError() throws Exception {
+    var data = TestDummy.createSalesAmountRecord();
 
-    given(subscriberRecordStatisticService.saveStatistic(data))
-        .willReturn(TestDummy.findSubscriberRecord());
+    given(salesAmountRecordStatisticService.saveStatistic(data))
+        .willReturn(TestDummy.findSalesAmountRecord());
 
     mvc.perform(
-           post("/v1/statistic/subscriber")
+           post("/v1/statistic/sales-amount")
                .contentType(MediaType.APPLICATION_JSON)
                .content(
-                   objectMapper.writeValueAsBytes(new SubscriberRequest(null, data.subscriberCount()))))
+                   objectMapper.writeValueAsBytes(new SalesAmountRequest(null, data.salesAmount()))))
        .andExpect(status().isBadRequest())
        .andExpect(jsonPath("$.status").value(400))
        .andExpect(jsonPath("$.data").exists())
        .andDo(print());
 
     mvc.perform(
-           post("/v1/statistic/subscriber")
+           post("/v1/statistic/sales-amount")
                .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new SubscriberRequest(data.recordTime(), -1))))
+               .content(objectMapper.writeValueAsBytes(new SalesAmountRequest(data.recordTime(), -1L))))
        .andExpect(status().isBadRequest())
        .andExpect(jsonPath("$.status").value(400))
        .andExpect(jsonPath("$.data").exists())
        .andDo(print());
 
     mvc.perform(
-           post("/v1/statistic/subscriber")
+           post("/v1/statistic/sales-amount")
                .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new SubscriberRequest(null, null))))
+               .content(objectMapper.writeValueAsBytes(new SalesAmountRequest(null, null))))
        .andExpect(status().isBadRequest())
        .andExpect(jsonPath("$.status").value(400))
        .andExpect(jsonPath("$.data").exists())
        .andDo(print());
 
-    then(subscriberRecordStatisticService).should(times(0)).saveStatistic(data);
+    then(salesAmountRecordStatisticService).should(times(0)).saveStatistic(data);
   }
 
   @Test
-  @DisplayName("가입자 데이터 업데이트 케이스")
-  void testUpdateSearchLeaverStatistic() throws Exception {
-    var data = TestDummy.findSubscriberRecord();
+  @DisplayName("매출금액 데이터 업데이트 케이스")
+  void testUpdateSearchUsageAmountStatistic() throws Exception {
+    var data = TestDummy.findSalesAmountRecord();
 
-    given(subscriberRecordStatisticService.updateStatistic(data)).willReturn(data);
+    given(salesAmountRecordStatisticService.updateStatistic(data)).willReturn(data);
 
     // case1 벨리데이션 에러
     mvc.perform(
-           put("/v1/statistic/subscriber/" + data.id())
+           put("/v1/statistic/sales-amount/" + data.id())
                .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new SubscriberRequest(null, -1))))
+               .content(objectMapper.writeValueAsBytes(new SalesAmountRequest(null, -1L))))
        .andExpect(status().isBadRequest())
        .andExpect(jsonPath("$.status").value(400))
        .andExpect(jsonPath("$.data").isArray())
@@ -221,7 +221,7 @@ class SubscriberStatisticControllerTest {
 
     // case2 정상 케이스
     mvc.perform(
-           put("/v1/statistic/subscriber/" + data.id())
+           put("/v1/statistic/sales-amount/" + data.id())
                .contentType(MediaType.APPLICATION_JSON)
                .content(objectMapper.writeValueAsBytes(data)))
        .andExpect(status().is2xxSuccessful())
@@ -230,11 +230,11 @@ class SubscriberStatisticControllerTest {
        .andDo(print());
 
     // case3 미존재 케이스
-    var errorMsg = "가입자 정보가 없습니다.";
-    given(subscriberRecordStatisticService.updateStatistic(data))
+    var errorMsg = "매출금액 정보가 없습니다.";
+    given(salesAmountRecordStatisticService.updateStatistic(data))
         .willThrow(new NotFoundException(errorMsg));
     mvc.perform(
-           put("/v1/statistic/subscriber/" + data.id())
+           put("/v1/statistic/sales-amount/" + data.id())
                .contentType(MediaType.APPLICATION_JSON)
                .content(objectMapper.writeValueAsBytes(data)))
        .andExpect(status().isNotFound())
@@ -243,18 +243,18 @@ class SubscriberStatisticControllerTest {
        .andExpect(jsonPath("$.data").value(errorMsg))
        .andDo(print());
 
-    then(subscriberRecordStatisticService).should(times(2)).updateStatistic(data);
+    then(salesAmountRecordStatisticService).should(times(2)).updateStatistic(data);
   }
 
   @Test
-  @DisplayName("가입자 데이터 삭제 요청 케이스")
-  void testDeleteSearchLeaverStatistic() throws Exception {
-    var data = TestDummy.findSubscriberRecord();
+  @DisplayName("매출금액 데이터 삭제 요청 케이스")
+  void testDeleteSearchUsageAmountStatistic() throws Exception {
+    var data = TestDummy.findSalesAmountRecord();
 
-    willDoNothing().given(subscriberRecordStatisticService).deleteStatistic(data.id());
+    willDoNothing().given(salesAmountRecordStatisticService).deleteStatistic(data.id());
 
     // case1 벨리데이션 에러
-    mvc.perform(delete("/v1/statistic/subscriber/" + 0))
+    mvc.perform(delete("/v1/statistic/sales-amount/" + 0))
        .andExpect(status().isBadRequest())
        .andExpect(jsonPath("$.status").value(400))
        .andExpect(jsonPath("$.data").isArray())
@@ -263,7 +263,7 @@ class SubscriberStatisticControllerTest {
 
     // case2 정상 케이스
     mvc.perform(
-           delete("/v1/statistic/subscriber/" + data.id())
+           delete("/v1/statistic/sales-amount/" + data.id())
                .contentType(MediaType.APPLICATION_JSON)
                .content(objectMapper.writeValueAsBytes(data)))
        .andExpect(status().is2xxSuccessful())
@@ -271,49 +271,52 @@ class SubscriberStatisticControllerTest {
        .andDo(print());
 
     // case3 미존재 케이스
-    var errorMsg = "가입자 정보가 없습니다.";
+    var errorMsg = "매출금액 정보가 없습니다.";
     willThrow(new NotFoundException(errorMsg))
-        .given(subscriberRecordStatisticService)
+        .given(salesAmountRecordStatisticService)
         .deleteStatistic(data.id());
 
-    mvc.perform(delete("/v1/statistic/subscriber/" + data.id()))
+    mvc.perform(delete("/v1/statistic/sales-amount/" + data.id()))
        .andExpect(status().isNotFound())
        .andExpect(jsonPath("$.status").value(404))
        .andExpect(jsonPath("$.data").exists())
        .andExpect(jsonPath("$.data").value(errorMsg))
        .andDo(print());
 
-    then(subscriberRecordStatisticService).should(times(2)).deleteStatistic(data.id());
+    then(salesAmountRecordStatisticService).should(times(2)).deleteStatistic(data.id());
   }
 
+
   public static class TestDummy {
-    public static SubscriberRecord createSubscribeRecord() {
+    public static SalesAmountRecord createSalesAmountRecord() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return SubscriberRecord.builder().recordTime(datetime).subscriberCount(1).build();
+      return SalesAmountRecord.builder().recordTime(datetime).salesAmount(100_000L).build();
     }
 
-    public static SubscriberRecord findSubscriberRecord() {
+    public static SalesAmountRecord findSalesAmountRecord() {
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      return SubscriberRecord.builder().id(1L).recordTime(datetime).subscriberCount(1).build();
+      return SalesAmountRecord.builder().id(1L).recordTime(datetime).salesAmount(100_000L).build();
     }
 
-    public static Paging<SubscriberRecord> findAllSubScribeRecords() {
+    public static Paging<SalesAmountRecord> findAllSalesAmountRecords() {
+
       var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
 
-      var elem1 = SubscriberRecord.builder().id(1L).recordTime(datetime).subscriberCount(1).build();
+      var elem1 =
+          SalesAmountRecord.builder().id(1L).recordTime(datetime).salesAmount(100_000L).build();
       var elem2 =
-          SubscriberRecord.builder()
+          SalesAmountRecord.builder()
               .id(2L)
               .recordTime(datetime.plusDays(1L))
-              .subscriberCount(2)
+              .salesAmount(100_000L)
               .build();
       var elem3 =
-          SubscriberRecord.builder()
+          SalesAmountRecord.builder()
               .id(3L)
               .recordTime(datetime.plusDays(2L))
-              .subscriberCount(3)
+              .salesAmount(100_000L)
               .build();
 
       return new Paging<>(List.of(elem1, elem2, elem3), 0, 10, 1, false, false);
