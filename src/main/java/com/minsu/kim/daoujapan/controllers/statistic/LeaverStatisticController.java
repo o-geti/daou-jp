@@ -91,7 +91,7 @@ public class LeaverStatisticController {
             .recordTime(leaverRecord.recordTime())
             .build();
 
-    return CommonResponse.responseCreated(
+    return CommonResponse.responseSuccess(
         leaverRecordStatisticService.updateStatistic(updateLeaverStatistic));
   }
 

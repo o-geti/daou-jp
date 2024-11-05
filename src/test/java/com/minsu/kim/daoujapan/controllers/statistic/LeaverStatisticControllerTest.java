@@ -1,11 +1,16 @@
 package com.minsu.kim.daoujapan.controllers.statistic;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.minsu.kim.daoujapan.data.request.LeaverRequest;
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.member.LeaverRecord;
+import com.minsu.kim.daoujapan.exception.NotFoundException;
 import com.minsu.kim.daoujapan.exception.ValidateCheckError;
 import com.minsu.kim.daoujapan.helper.LocalDateTimeParamChecker;
 import com.minsu.kim.daoujapan.services.statistics.StatisticService;
@@ -190,6 +196,91 @@ class LeaverStatisticControllerTest {
         .andDo(print());
 
     then(leaverRecordStatisticService).should(times(0)).saveStatistic(data);
+  }
+
+  @Test
+  @DisplayName("탈퇴자 데이터 업데이트 케이스")
+  void testUpdateSearchLeaverStatistic() throws Exception {
+    var data = TestDummy.findLeaverRequestRecord();
+
+    given(leaverRecordStatisticService.updateStatistic(data)).willReturn(data);
+
+    // case1 벨리데이션 에러
+    mvc.perform(
+            put("/v1/statistic/leaver/" + data.id())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new LeaverRequest(null, -1))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").isArray())
+        .andExpect(jsonPath("$.data.size()").value(2))
+        .andDo(print());
+
+    // case2 정상 케이스
+    mvc.perform(
+            put("/v1/statistic/leaver/" + data.id())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(data)))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(jsonPath("$.status").value(200))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
+
+    // case3 미존재 케이스
+    var errorMsg = "탈퇴자 정보가 없습니다.";
+    given(leaverRecordStatisticService.updateStatistic(data))
+        .willThrow(new NotFoundException(errorMsg));
+    mvc.perform(
+            put("/v1/statistic/leaver/" + data.id())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(data)))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data").value(errorMsg))
+        .andDo(print());
+
+    then(leaverRecordStatisticService).should(times(2)).updateStatistic(data);
+  }
+
+  @Test
+  @DisplayName("탈퇴자 데이터 삭제 요청 케이스")
+  void testDeleteSearchLeaverStatistic() throws Exception {
+    var data = TestDummy.findLeaverRequestRecord();
+
+    willDoNothing().given(leaverRecordStatisticService).deleteStatistic(data.id());
+
+    // case1 벨리데이션 에러
+    mvc.perform(delete("/v1/statistic/leaver/" + 0))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").isArray())
+        .andExpect(jsonPath("$.data.size()").value(1))
+        .andDo(print());
+
+    // case2 정상 케이스
+    mvc.perform(
+            delete("/v1/statistic/leaver/" + data.id())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(data)))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(result -> assertThat(result.getResponse().getContentLength()).isZero())
+        .andDo(print());
+
+    // case3 미존재 케이스
+    var errorMsg = "탈퇴자 정보가 없습니다.";
+    willThrow(new NotFoundException(errorMsg))
+        .given(leaverRecordStatisticService)
+        .deleteStatistic(data.id());
+
+    mvc.perform(delete("/v1/statistic/leaver/" + data.id()))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data").value(errorMsg))
+        .andDo(print());
+
+    then(leaverRecordStatisticService).should(times(2)).deleteStatistic(data.id());
   }
 
   public static class TestDummy {
