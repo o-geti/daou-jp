@@ -1,14 +1,21 @@
 package com.minsu.kim.daoujapan.services.statistics.leaver;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 
+import com.minsu.kim.daoujapan.exception.NotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import java.util.Optional;
+import junit.framework.TestSuite;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,7 +114,53 @@ class LeaverStatisticServiceImplTest {
   }
 
   @Test
-  void updateStatistic() {}
+  @DisplayName("탈퇴자 수에 대한 통계값을 수정합니다.")
+  void updateStatistic() {
+    var optionalMockUpdateTarget = TestDummy.findLeaverStatisticNotDeletedEntityMock();
+    var mockUpdateTarget = optionalMockUpdateTarget.get();
+
+    // given
+    given(repository.findByDeleteDtIsNullAndId(anyLong()))
+        .willReturn(optionalMockUpdateTarget);
+
+    // when
+    var updateForDummy = TestDummy.updateForDummy();
+    var updatedStatistic = leaverStatisticService.updateStatistic(TestDummy.updateForDummy());
+
+    // then
+    then(mockUpdateTarget).should(times(1)).modifyEntity(updateForDummy.recordTime(), updateForDummy.leaverCount());
+    assertThat(updatedStatistic.leaverCount()).isEqualTo(updateForDummy.leaverCount());
+    assertThat(updatedStatistic.recordTime()).isEqualTo(updateForDummy.recordTime());
+  }
+
+  @Test
+  @DisplayName("탈퇴자 수에 대한 통계값을 수정합니다.")
+  void updateStatisticIfNotExsistThenThrow() {
+    // given
+    given(repository.findByDeleteDtIsNullAndId(anyLong())).willReturn(Optional.empty());
+
+    // when, then
+    assertThatThrownBy(() -> leaverStatisticService.updateStatistic(TestDummy.updateForDummy()))
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("탈퇴자 정보를 찾을 수 없습니다.");
+  }
+
+
+  @Test
+  void deleteStatistic() {
+    var optionalMockUpdateTarget = TestDummy.findLeaverStatisticNotDeletedEntityMock();
+    var mockUpdateTarget = optionalMockUpdateTarget.get();
+
+    // given
+    given(repository.findByDeleteDtIsNullAndId(anyLong())).willReturn(optionalMockUpdateTarget);
+
+    //when
+    leaverStatisticService.deleteStatistic(1L);
+
+    // then
+    then(mockUpdateTarget).should(times(1)).deleteStatistic();
+    assertThat(mockUpdateTarget.getDeleteDt()).isNotNull().isInstanceOf(LocalDateTime.class);
+  }
 
   public static class TestDummy {
     public static LeaverStatisticEntity findLeaverStatisticEntitySuit() {
@@ -143,6 +196,19 @@ class LeaverStatisticServiceImplTest {
       var pageRequest = PageRequest.of(0, 3);
 
       return (new PageImpl<>(List.of(elem1, elem2, elem3), pageRequest, 3));
+    }
+
+    public static Optional<LeaverStatisticEntity> findLeaverStatisticNotDeletedEntityMock() {
+      var datetime = LocalDateTime.of(2024, 11, 3, 0, 0, 0);
+
+      return Optional.of(spy(LeaverStatisticEntity.builder().id(1L).recordTime(datetime).leaverCount(1).build()));
+    }
+
+
+    public static LeaverRecord updateForDummy() {
+      var datetime = LocalDateTime.of(2024, 11, 4, 0, 0, 0);
+
+      return LeaverRecord.builder().id(1L).recordTime(datetime).leaverCount(100).build();
     }
   }
 }
