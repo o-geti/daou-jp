@@ -1,12 +1,12 @@
 # Daou Japan 경력자 과제
 목차
-1. 요구사항 분석
-2. 요구사항 구현 현황
-3. 코드 실행 방법
-4. 코드 스타일 가이드
-5. 테스트 환경
-6. 설계
-7. Rate limit 설정
+1. [요구사항 분석]([https://github.com/o-geti/daou-jp/edit/main/README.md#1-%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD-%EB%B6%84%EC%84%9D](https://github.com/o-geti/daou-jp/edit/main/README.md#1-%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD-%EB%B6%84%EC%84%9D))
+2. [요구사항 구현 현황](https://github.com/o-geti/daou-jp?tab=readme-ov-file#2-%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD-%EA%B5%AC%ED%98%84-%ED%98%84%ED%99%A9)
+3. [코드 실행 방법](https://github.com/o-geti/daou-jp?tab=readme-ov-file#3-%EB%8D%B0%EB%AA%A8%EB%B2%84%EC%A0%84-%EC%8B%A4%ED%96%89)
+4. [코드 스타일 가이드](https://github.com/o-geti/daou-jp?tab=readme-ov-file#4-%EC%BD%94%EB%93%9C-%EC%8A%A4%ED%83%80%EC%9D%BC-%EA%B0%80%EC%9D%B4%EB%93%9C)
+5. [테스트 환경](https://github.com/o-geti/daou-jp?tab=readme-ov-file#5-%ED%85%8C%EC%8A%A4%ED%8A%B8-%ED%99%98%EA%B2%BD)
+6. [설계](https://github.com/o-geti/daou-jp?tab=readme-ov-file#6-%EC%84%A4%EA%B3%84)
+7. [Rate limit 설정](https://github.com/o-geti/daou-jp?tab=readme-ov-file#7rate-limit-%EC%84%A4%EC%A0%95)
 
 ## 1. 요구사항 분석
 0. 공통.
@@ -55,6 +55,9 @@
       1. 특정 API를 대상으로 많은 트래픽을 요청하면 블록 처리한다. ✅
 
 ## 3. 데모버전 실행
+### 3-0 데모버전 실행 전 준비사항
+   1. docker cli (docker compose로 mysql 실행해야합니다!)
+   2. java jdk 21 (21버전 미만의 경우, `./gradlew bootrun` 실행시 에러가 발생합니다!)
 ### 3-1. Mysql 실행
 ```sh
 docker compose up -d
@@ -175,6 +178,6 @@ logback 설정은 기존 상용환경과 다르게 로그 레벨을 디버깅 �
 1. Resilience4j를 이용하여 rate limit 설정을 진행했습니다.
 2. 해당 패키지를 선택한이유는 어노테이션으로 서비스 레이어에 태그만 달아,<br>
 나머지 설정을 yml로 하여 설정하기 좋은 구조라 채택했습니다.
-3. 설정값의 자세한 내용은 application.yml에 설정 상세 작성되어있습니다.
+3. 설정값의 자세한 내용은 application.yml에 설정 상세 작성되어있습니다. - [링크](https://github.com/o-geti/daou-jp/blob/main/src/main/resources/application.yml)
 
 
