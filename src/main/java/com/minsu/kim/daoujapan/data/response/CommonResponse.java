@@ -42,6 +42,10 @@ public record CommonResponse<T>(int status, T data) {
     return new CommonResponse<>(HttpStatus.CONFLICT.value(), data);
   }
 
+  public static <T> CommonResponse<T> responseManyRequest(T data) {
+    return new CommonResponse<>(HttpStatus.TOO_MANY_REQUESTS.value(), data);
+  }
+
   public static <T> CommonResponse<T> responseServerError(T data) {
     return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), data);
   }

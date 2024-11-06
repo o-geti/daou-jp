@@ -3,6 +3,7 @@ package com.minsu.kim.daoujapan.services.statistics.leaver;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
   private final LeaverStatisticRepository leaverStatisticRepository;
   private final LeaverMapper leaverMapper;
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional(readOnly = true)
   @Override
   public Paging<LeaverRecord> findStatistics(Pageable pageable) {
@@ -37,6 +39,7 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
     return Paging.createPaging(pageLeaver, pageable, leaverMapper::entityToDto);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional(readOnly = true)
   @Override
   public Paging<LeaverRecord> findStatisticsByDateTime(
@@ -47,6 +50,7 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
     return Paging.createPaging(pageLeaver, pageable, leaverMapper::entityToDto);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public LeaverRecord saveStatistic(LeaverRecord statistic) {
@@ -66,6 +70,7 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
     return statistic.leaverRecord().map(this::saveStatistic);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public LeaverRecord updateStatistic(LeaverRecord statistic) {
@@ -79,6 +84,7 @@ public class LeaverStatisticServiceImpl implements StatisticService<LeaverRecord
     return leaverMapper.entityToDto(leaverEntity);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public void deleteStatistic(Long statisticId) {

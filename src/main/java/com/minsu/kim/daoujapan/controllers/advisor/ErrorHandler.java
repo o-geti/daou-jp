@@ -1,5 +1,6 @@
 package com.minsu.kim.daoujapan.controllers.advisor;
 
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +88,12 @@ public class ErrorHandler {
   @ResponseStatus(HttpStatus.CONFLICT)
   public CommonResponse<String> exceptValidation409Error(Exception exception) {
     return CommonResponse.responseConflict(exception.getMessage());
+  }
+
+  @ExceptionHandler(RequestNotPermitted.class)
+  @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+  public CommonResponse<String> exceptManyRequest429Error(RequestNotPermitted exception) {
+    return CommonResponse.responseManyRequest(exception.getMessage());
   }
 
   @ExceptionHandler({Exception.class})

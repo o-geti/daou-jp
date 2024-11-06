@@ -55,15 +55,7 @@ public class SecurityConfig {
       HttpSecurity http, AccessDinedHandlerImpl accessDinedHandler) throws Exception {
     http.securityMatcher("/**")
         .authorizeHttpRequests(
-            (authorize) -> {
-              authorize
-                  .requestMatchers("/v1/**")
-                  .authenticated()
-                  .requestMatchers("/", "/error/**")
-                  .anonymous()
-                  .anyRequest()
-                  .denyAll();
-            })
+            (authorize) -> authorize.requestMatchers("/v1/**").authenticated().anyRequest().denyAll())
         .csrf(AbstractHttpConfigurer::disable)
         .cors(AbstractHttpConfigurer::disable)
         .sessionManagement(
@@ -130,6 +122,6 @@ public class SecurityConfig {
 
   @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
-    return web -> web.ignoring().requestMatchers("/swagger-ui/**", "/api-docs/**");
+    return web -> web.ignoring().requestMatchers("/swagger-ui/**", "/api-docs/**", "/actuator/**");
   }
 }

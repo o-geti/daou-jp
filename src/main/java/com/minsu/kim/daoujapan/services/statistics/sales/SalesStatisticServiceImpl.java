@@ -3,6 +3,7 @@ package com.minsu.kim.daoujapan.services.statistics.sales;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
   private final SalesAmountStatisticRepository salesAmountStatisticRepository;
   private final SalesAmountMapper salesAmountMapper;
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional(readOnly = true)
   @Override
   public Paging<SalesAmountRecord> findStatistics(Pageable pageable) {
@@ -36,6 +38,7 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
     return Paging.createPaging(pageLeaver, pageable, salesAmountMapper::entityToDto);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional(readOnly = true)
   @Override
   public Paging<SalesAmountRecord> findStatisticsByDateTime(
@@ -47,6 +50,7 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
     return Paging.createPaging(pageLeaver, pageable, salesAmountMapper::entityToDto);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public SalesAmountRecord saveStatistic(SalesAmountRecord statistic) {
@@ -67,6 +71,7 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
     return statistic.salesAmountRecord().map(this::saveStatistic);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public SalesAmountRecord updateStatistic(SalesAmountRecord statistic) {
@@ -80,6 +85,7 @@ public class SalesStatisticServiceImpl implements StatisticService<SalesAmountRe
     return salesAmountMapper.entityToDto(salesAmountStatisticEntity);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public void deleteStatistic(Long statisticId) {

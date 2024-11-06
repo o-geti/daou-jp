@@ -3,6 +3,7 @@ package com.minsu.kim.daoujapan.services.statistics.payment;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
   private final PaymentAmountStatisticRepository paymentAmountStatisticRepository;
   private final PaymentAmountMapper paymentAmountMapper;
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional(readOnly = true)
   @Override
   public Paging<PaymentAmountRecord> findStatistics(Pageable pageable) {
@@ -35,6 +37,7 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
     return Paging.createPaging(pageSubscriber, pageable, paymentAmountMapper::entityToDto);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional(readOnly = true)
   @Override
   public Paging<PaymentAmountRecord> findStatisticsByDateTime(
@@ -46,6 +49,7 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
     return Paging.createPaging(pageSubscriber, pageable, paymentAmountMapper::entityToDto);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public PaymentAmountRecord saveStatistic(PaymentAmountRecord statistic) {
@@ -66,6 +70,7 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
     return statistic.paymentAmountRecord().map(this::saveStatistic);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public PaymentAmountRecord updateStatistic(PaymentAmountRecord statistic) {
@@ -79,6 +84,7 @@ public class PaymentStatisticServiceImpl implements StatisticService<PaymentAmou
     return paymentAmountMapper.entityToDto(paymentAmountStatisticEntity);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public void deleteStatistic(Long statisticId) {

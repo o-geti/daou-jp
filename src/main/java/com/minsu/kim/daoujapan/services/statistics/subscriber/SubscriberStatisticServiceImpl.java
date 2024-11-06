@@ -3,6 +3,7 @@ package com.minsu.kim.daoujapan.services.statistics.subscriber;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
   private final SubscriberStatisticRepository subscriberStatisticRepository;
   private final SubscriberMapper subscriberMapper;
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional(readOnly = true)
   @Override
   public Paging<SubscriberRecord> findStatistics(Pageable pageable) {
@@ -35,6 +37,7 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
     return Paging.createPaging(pageSubscriber, pageable, subscriberMapper::entityToDto);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional(readOnly = true)
   @Override
   public Paging<SubscriberRecord> findStatisticsByDateTime(
@@ -46,6 +49,7 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
     return Paging.createPaging(pageSubscriber, pageable, subscriberMapper::entityToDto);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public SubscriberRecord saveStatistic(SubscriberRecord statistic) {
@@ -67,6 +71,7 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
     return statistic.subscriberRecord().map(this::saveStatistic);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public SubscriberRecord updateStatistic(SubscriberRecord statistic) {
@@ -80,6 +85,7 @@ public class SubscriberStatisticServiceImpl implements StatisticService<Subscrib
     return subscriberMapper.entityToDto(subscriberStatisticEntity);
   }
 
+  @RateLimiter(name = "STATISTIC_SERVICE")
   @Transactional
   @Override
   public void deleteStatistic(Long statisticId) {
