@@ -132,10 +132,10 @@ logback 설정은 기존 상용환경과 다르게 로그 레벨을 디버깅 �
 │
 ├── controllers
 │   ├── advisor - 공통 예외처리 패키지입니다.
-│   └── statistic - 통계자료를 API 요청 컨트롤러입니다.
+│   └── statistic - 통계자료에 관한 API 요청 컨트롤러입니다.
 │
 ├── data
-│   ├── request - 요청관련 데이터 객체가 정의된 패키지입니다
+│   ├── request - 요청관련 데이터 객체가 정의된 패키지입니다.
 │   ├── response - 응답관련 (공통, 페이징) 데이터 객체가 정의된 패키지입니다.
 │   └── statistics - 통계와 관련된 DTO성 객체입니다.
 │
@@ -169,6 +169,7 @@ logback 설정은 기존 상용환경과 다르게 로그 레벨을 디버깅 �
 │
 └── services - 도메인 관련 비즈니스 로직을 처리하는 패키지입니다.
 ```
+
 ### 6-3. 유스케이스별 흐름.
 #### 1. 로그인
 ![image](https://github.com/o-geti/daou-jp/blob/main/doc-static/Login.png?raw=true)
