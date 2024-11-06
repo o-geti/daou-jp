@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.times;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -15,25 +16,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.minsu.kim.daoujapan.data.request.SalesAmountRequest;
-import com.minsu.kim.daoujapan.exception.NotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.minsu.kim.daoujapan.data.request.SalesAmountRequest;
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.amount.SalesAmountRecord;
+import com.minsu.kim.daoujapan.exception.NotFoundException;
 import com.minsu.kim.daoujapan.exception.ValidateCheckError;
 import com.minsu.kim.daoujapan.helper.LocalDateTimeParamChecker;
 import com.minsu.kim.daoujapan.services.statistics.StatisticService;
@@ -43,16 +49,26 @@ import com.minsu.kim.daoujapan.services.statistics.StatisticService;
  * @since 1.0
  */
 @WebMvcTest(SalesAmountStatisticController.class)
+@Import(ConcurrentHashMap.class)
 class SalesAmountStatisticControllerTest {
 
   @Autowired MockMvc mvc;
 
   @Autowired ObjectMapper objectMapper;
+  @Autowired ConcurrentHashMap<String, LocalDateTime> fakeRedis;
 
   @MockBean StatisticService<SalesAmountRecord> salesAmountRecordStatisticService;
   @MockBean LocalDateTimeParamChecker checker;
 
+  String exampleToken = "test_token";
+
+  @BeforeEach
+  void setUp() {
+    fakeRedis.put(exampleToken, LocalDateTime.now().plusHours(3L));
+  }
+
   @Test
+  @WithMockUser
   @DisplayName("필터없이 페이징 조회 요청하기")
   void testSearchSalesAmountStatisticWithoutFilter() throws Exception {
     given(checker.checkForBetweenFromAndTo(null, null)).willReturn(Optional.empty());
@@ -60,7 +76,12 @@ class SalesAmountStatisticControllerTest {
     given(salesAmountRecordStatisticService.findStatistics(any()))
         .willReturn(TestDummy.findAllSalesAmountRecords());
 
-    mvc.perform(get("/v1/statistic/sales-amount").param("page", "0").param("size", "10"))
+    mvc.perform(
+            get("/v1/statistic/sales-amount")
+                .param("page", "0")
+                .param("size", "10")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value(200))
         .andExpect(jsonPath("$.data").exists())
@@ -71,6 +92,7 @@ class SalesAmountStatisticControllerTest {
   }
 
   @Test
+  @WithMockUser
   @DisplayName("날짜 필터추가 후 기본값 페이징 조회 요청하기")
   void testSearchSalesAmountStatisticWithFilter() throws Exception {
     LocalDateTime from = LocalDateTime.now().minusDays(1);
@@ -88,7 +110,9 @@ class SalesAmountStatisticControllerTest {
     mvc.perform(
             get("/v1/statistic/sales-amount")
                 .param("searchFrom", fromString)
-                .param("searchTo", toString))
+                .param("searchTo", toString)
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value(200))
         .andExpect(jsonPath("$.data").exists())
@@ -103,6 +127,7 @@ class SalesAmountStatisticControllerTest {
   }
 
   @Test
+  @WithMockUser
   @DisplayName("닐짜 필터 공통 에러 핸들러 응답 확인")
   void testSearchSalesAmountStatisticWithFilterError() throws Exception {
     LocalDateTime from = LocalDateTime.now();
@@ -121,7 +146,9 @@ class SalesAmountStatisticControllerTest {
     mvc.perform(
             get("/v1/statistic/sales-amount")
                 .param("searchFrom", fromString)
-                .param("searchTo", toString))
+                .param("searchTo", toString)
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf()))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status").value(400))
         .andExpect(jsonPath("$.data").exists())
@@ -134,6 +161,7 @@ class SalesAmountStatisticControllerTest {
   }
 
   @Test
+  @WithMockUser
   @DisplayName("데이터 생성")
   void testCreateSearchUsageAmountStatistic() throws Exception {
     var data = TestDummy.createSalesAmountRecord();
@@ -143,26 +171,29 @@ class SalesAmountStatisticControllerTest {
 
     var datetime =
         LocalDateTime.of(2024, 11, 3, 0, 0, 0)
-                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 
     mvc.perform(
-           post("/v1/statistic/sales-amount")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(
-                   objectMapper.writeValueAsBytes(
-                       new SalesAmountRequest(data.recordTime(), data.salesAmount()))))
-       .andExpect(status().isCreated())
-       .andExpect(jsonPath("$.status").value(201))
-       .andExpect(jsonPath("$.data").exists())
-       .andExpect(jsonPath("$.data.id").value(1))
-       .andExpect(jsonPath("$.data.recordTime").value(datetime))
-       .andExpect(jsonPath("$.data.salesAmount").value(100_000L))
-       .andDo(print());
+            post("/v1/statistic/sales-amount")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsBytes(
+                        new SalesAmountRequest(data.recordTime(), data.salesAmount()))))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value(201))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(1))
+        .andExpect(jsonPath("$.data.recordTime").value(datetime))
+        .andExpect(jsonPath("$.data.salesAmount").value(100_000L))
+        .andDo(print());
 
     then(salesAmountRecordStatisticService).should(times(1)).saveStatistic(data);
   }
 
   @Test
+  @WithMockUser
   @DisplayName("데이터 생성 밸리데이션 에러")
   void testCreateSearchUsageAmountStatisticValidError() throws Exception {
     var data = TestDummy.createSalesAmountRecord();
@@ -171,37 +202,46 @@ class SalesAmountStatisticControllerTest {
         .willReturn(TestDummy.findSalesAmountRecord());
 
     mvc.perform(
-           post("/v1/statistic/sales-amount")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(
-                   objectMapper.writeValueAsBytes(new SalesAmountRequest(null, data.salesAmount()))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
+            post("/v1/statistic/sales-amount")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .content(
+                    objectMapper.writeValueAsBytes(
+                        new SalesAmountRequest(null, data.salesAmount()))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     mvc.perform(
-           post("/v1/statistic/sales-amount")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new SalesAmountRequest(data.recordTime(), -1L))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
+            post("/v1/statistic/sales-amount")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsBytes(new SalesAmountRequest(data.recordTime(), -1L))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     mvc.perform(
-           post("/v1/statistic/sales-amount")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new SalesAmountRequest(null, null))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
+            post("/v1/statistic/sales-amount")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new SalesAmountRequest(null, null))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     then(salesAmountRecordStatisticService).should(times(0)).saveStatistic(data);
   }
 
   @Test
+  @WithMockUser
   @DisplayName("매출금액 데이터 업데이트 케이스")
   void testUpdateSearchUsageAmountStatistic() throws Exception {
     var data = TestDummy.findSalesAmountRecord();
@@ -210,43 +250,50 @@ class SalesAmountStatisticControllerTest {
 
     // case1 벨리데이션 에러
     mvc.perform(
-           put("/v1/statistic/sales-amount/" + data.id())
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new SalesAmountRequest(null, -1L))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").isArray())
-       .andExpect(jsonPath("$.data.size()").value(2))
-       .andDo(print());
+            put("/v1/statistic/sales-amount/" + data.id())
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new SalesAmountRequest(null, -1L))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").isArray())
+        .andExpect(jsonPath("$.data.size()").value(2))
+        .andDo(print());
 
     // case2 정상 케이스
     mvc.perform(
-           put("/v1/statistic/sales-amount/" + data.id())
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(data)))
-       .andExpect(status().is2xxSuccessful())
-       .andExpect(jsonPath("$.status").value(200))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
+            put("/v1/statistic/sales-amount/" + data.id())
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(data)))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(jsonPath("$.status").value(200))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     // case3 미존재 케이스
     var errorMsg = "매출금액 정보가 없습니다.";
     given(salesAmountRecordStatisticService.updateStatistic(data))
         .willThrow(new NotFoundException(errorMsg));
     mvc.perform(
-           put("/v1/statistic/sales-amount/" + data.id())
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(data)))
-       .andExpect(status().isNotFound())
-       .andExpect(jsonPath("$.status").value(404))
-       .andExpect(jsonPath("$.data").exists())
-       .andExpect(jsonPath("$.data").value(errorMsg))
-       .andDo(print());
+            put("/v1/statistic/sales-amount/" + data.id())
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(data)))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data").value(errorMsg))
+        .andDo(print());
 
     then(salesAmountRecordStatisticService).should(times(2)).updateStatistic(data);
   }
 
   @Test
+  @WithMockUser
   @DisplayName("매출금액 데이터 삭제 요청 케이스")
   void testDeleteSearchUsageAmountStatistic() throws Exception {
     var data = TestDummy.findSalesAmountRecord();
@@ -254,21 +301,26 @@ class SalesAmountStatisticControllerTest {
     willDoNothing().given(salesAmountRecordStatisticService).deleteStatistic(data.id());
 
     // case1 벨리데이션 에러
-    mvc.perform(delete("/v1/statistic/sales-amount/" + 0))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").isArray())
-       .andExpect(jsonPath("$.data.size()").value(1))
-       .andDo(print());
+    mvc.perform(
+            delete("/v1/statistic/sales-amount/" + 0)
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf()))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").isArray())
+        .andExpect(jsonPath("$.data.size()").value(1))
+        .andDo(print());
 
     // case2 정상 케이스
     mvc.perform(
-           delete("/v1/statistic/sales-amount/" + data.id())
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(data)))
-       .andExpect(status().is2xxSuccessful())
-       .andExpect(result -> assertThat(result.getResponse().getContentLength()).isZero())
-       .andDo(print());
+            delete("/v1/statistic/sales-amount/" + data.id())
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(data)))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(result -> assertThat(result.getResponse().getContentLength()).isZero())
+        .andDo(print());
 
     // case3 미존재 케이스
     var errorMsg = "매출금액 정보가 없습니다.";
@@ -276,16 +328,18 @@ class SalesAmountStatisticControllerTest {
         .given(salesAmountRecordStatisticService)
         .deleteStatistic(data.id());
 
-    mvc.perform(delete("/v1/statistic/sales-amount/" + data.id()))
-       .andExpect(status().isNotFound())
-       .andExpect(jsonPath("$.status").value(404))
-       .andExpect(jsonPath("$.data").exists())
-       .andExpect(jsonPath("$.data").value(errorMsg))
-       .andDo(print());
+    mvc.perform(
+            delete("/v1/statistic/sales-amount/" + data.id())
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf()))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data").value(errorMsg))
+        .andDo(print());
 
     then(salesAmountRecordStatisticService).should(times(2)).deleteStatistic(data.id());
   }
-
 
   public static class TestDummy {
     public static SalesAmountRecord createSalesAmountRecord() {

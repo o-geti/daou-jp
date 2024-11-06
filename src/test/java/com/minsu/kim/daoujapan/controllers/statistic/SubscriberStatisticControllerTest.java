@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.times;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -15,25 +16,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.minsu.kim.daoujapan.data.request.SubscriberRequest;
-import com.minsu.kim.daoujapan.exception.NotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.minsu.kim.daoujapan.data.request.SubscriberRequest;
 import com.minsu.kim.daoujapan.data.response.Paging;
 import com.minsu.kim.daoujapan.data.statistics.member.SubscriberRecord;
+import com.minsu.kim.daoujapan.exception.NotFoundException;
 import com.minsu.kim.daoujapan.exception.ValidateCheckError;
 import com.minsu.kim.daoujapan.helper.LocalDateTimeParamChecker;
 import com.minsu.kim.daoujapan.services.statistics.StatisticService;
@@ -43,16 +49,26 @@ import com.minsu.kim.daoujapan.services.statistics.StatisticService;
  * @since 1.0
  */
 @WebMvcTest(SubscriberStatisticController.class)
+@Import(ConcurrentHashMap.class)
 class SubscriberStatisticControllerTest {
 
   @Autowired MockMvc mvc;
 
   @Autowired ObjectMapper objectMapper;
+  @Autowired ConcurrentHashMap<String, LocalDateTime> fakeRedis;
 
   @MockBean StatisticService<SubscriberRecord> subscriberRecordStatisticService;
   @MockBean LocalDateTimeParamChecker checker;
 
+  String exampleToken = "test_token";
+
+  @BeforeEach
+  void setUp() {
+    fakeRedis.put(exampleToken, LocalDateTime.now().plusHours(3L));
+  }
+
   @Test
+  @WithMockUser
   @DisplayName("필터없이 페이징 조회 요청하기")
   void testSearchSubscriberStatisticWithoutFilter() throws Exception {
     given(checker.checkForBetweenFromAndTo(null, null)).willReturn(Optional.empty());
@@ -60,7 +76,12 @@ class SubscriberStatisticControllerTest {
     given(subscriberRecordStatisticService.findStatistics(any()))
         .willReturn(TestDummy.findAllSubScribeRecords());
 
-    mvc.perform(get("/v1/statistic/subscriber").param("page", "0").param("size", "10"))
+    mvc.perform(
+            get("/v1/statistic/subscriber")
+                .param("page", "0")
+                .param("size", "10")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value(200))
         .andExpect(jsonPath("$.data").exists())
@@ -71,6 +92,7 @@ class SubscriberStatisticControllerTest {
   }
 
   @Test
+  @WithMockUser
   @DisplayName("날짜 필터추가 후 기본값 페이징 조회 요청하기")
   void testSearchSubscriberStatisticWithFilter() throws Exception {
     LocalDateTime from = LocalDateTime.now().minusDays(1);
@@ -87,6 +109,8 @@ class SubscriberStatisticControllerTest {
 
     mvc.perform(
             get("/v1/statistic/subscriber")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
                 .param("searchFrom", fromString)
                 .param("searchTo", toString))
         .andExpect(status().isOk())
@@ -103,6 +127,7 @@ class SubscriberStatisticControllerTest {
   }
 
   @Test
+  @WithMockUser
   @DisplayName("닐짜 필터 공통 에러 핸들러 응답 확인")
   void testSearchSubscriberStatisticWithFilterError() throws Exception {
     LocalDateTime from = LocalDateTime.now();
@@ -120,6 +145,8 @@ class SubscriberStatisticControllerTest {
 
     mvc.perform(
             get("/v1/statistic/subscriber")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
                 .param("searchFrom", fromString)
                 .param("searchTo", toString))
         .andExpect(status().isBadRequest())
@@ -134,6 +161,7 @@ class SubscriberStatisticControllerTest {
   }
 
   @Test
+  @WithMockUser
   @DisplayName("데이터 생성")
   void testCreateSearchLeaverStatistic() throws Exception {
     var data = TestDummy.createSubscribeRecord();
@@ -143,26 +171,29 @@ class SubscriberStatisticControllerTest {
 
     var datetime =
         LocalDateTime.of(2024, 11, 3, 0, 0, 0)
-                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 
     mvc.perform(
-           post("/v1/statistic/subscriber")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(
-                   objectMapper.writeValueAsBytes(
-                       new SubscriberRequest(data.recordTime(), data.subscriberCount()))))
-       .andExpect(status().isCreated())
-       .andExpect(jsonPath("$.status").value(201))
-       .andExpect(jsonPath("$.data").exists())
-       .andExpect(jsonPath("$.data.id").value(1))
-       .andExpect(jsonPath("$.data.recordTime").value(datetime))
-       .andExpect(jsonPath("$.data.subscriberCount").value(1))
-       .andDo(print());
+            post("/v1/statistic/subscriber")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsBytes(
+                        new SubscriberRequest(data.recordTime(), data.subscriberCount()))))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value(201))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(1))
+        .andExpect(jsonPath("$.data.recordTime").value(datetime))
+        .andExpect(jsonPath("$.data.subscriberCount").value(1))
+        .andDo(print());
 
     then(subscriberRecordStatisticService).should(times(1)).saveStatistic(data);
   }
 
   @Test
+  @WithMockUser
   @DisplayName("데이터 생성 밸리데이션 에러")
   void testCreateSearchLeaverStatisticValuidError() throws Exception {
     var data = TestDummy.createSubscribeRecord();
@@ -171,37 +202,46 @@ class SubscriberStatisticControllerTest {
         .willReturn(TestDummy.findSubscriberRecord());
 
     mvc.perform(
-           post("/v1/statistic/subscriber")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(
-                   objectMapper.writeValueAsBytes(new SubscriberRequest(null, data.subscriberCount()))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
+            post("/v1/statistic/subscriber")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsBytes(
+                        new SubscriberRequest(null, data.subscriberCount()))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     mvc.perform(
-           post("/v1/statistic/subscriber")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new SubscriberRequest(data.recordTime(), -1))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
+            post("/v1/statistic/subscriber")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsBytes(new SubscriberRequest(data.recordTime(), -1))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     mvc.perform(
-           post("/v1/statistic/subscriber")
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new SubscriberRequest(null, null))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
+            post("/v1/statistic/subscriber")
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new SubscriberRequest(null, null))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     then(subscriberRecordStatisticService).should(times(0)).saveStatistic(data);
   }
 
   @Test
+  @WithMockUser
   @DisplayName("가입자 데이터 업데이트 케이스")
   void testUpdateSearchLeaverStatistic() throws Exception {
     var data = TestDummy.findSubscriberRecord();
@@ -210,43 +250,50 @@ class SubscriberStatisticControllerTest {
 
     // case1 벨리데이션 에러
     mvc.perform(
-           put("/v1/statistic/subscriber/" + data.id())
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(new SubscriberRequest(null, -1))))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").isArray())
-       .andExpect(jsonPath("$.data.size()").value(2))
-       .andDo(print());
+            put("/v1/statistic/subscriber/" + data.id())
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new SubscriberRequest(null, -1))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").isArray())
+        .andExpect(jsonPath("$.data.size()").value(2))
+        .andDo(print());
 
     // case2 정상 케이스
     mvc.perform(
-           put("/v1/statistic/subscriber/" + data.id())
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(data)))
-       .andExpect(status().is2xxSuccessful())
-       .andExpect(jsonPath("$.status").value(200))
-       .andExpect(jsonPath("$.data").exists())
-       .andDo(print());
+            put("/v1/statistic/subscriber/" + data.id())
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(data)))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(jsonPath("$.status").value(200))
+        .andExpect(jsonPath("$.data").exists())
+        .andDo(print());
 
     // case3 미존재 케이스
     var errorMsg = "가입자 정보가 없습니다.";
     given(subscriberRecordStatisticService.updateStatistic(data))
         .willThrow(new NotFoundException(errorMsg));
     mvc.perform(
-           put("/v1/statistic/subscriber/" + data.id())
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(data)))
-       .andExpect(status().isNotFound())
-       .andExpect(jsonPath("$.status").value(404))
-       .andExpect(jsonPath("$.data").exists())
-       .andExpect(jsonPath("$.data").value(errorMsg))
-       .andDo(print());
+            put("/v1/statistic/subscriber/" + data.id())
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(data)))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data").value(errorMsg))
+        .andDo(print());
 
     then(subscriberRecordStatisticService).should(times(2)).updateStatistic(data);
   }
 
   @Test
+  @WithMockUser
   @DisplayName("가입자 데이터 삭제 요청 케이스")
   void testDeleteSearchLeaverStatistic() throws Exception {
     var data = TestDummy.findSubscriberRecord();
@@ -254,21 +301,26 @@ class SubscriberStatisticControllerTest {
     willDoNothing().given(subscriberRecordStatisticService).deleteStatistic(data.id());
 
     // case1 벨리데이션 에러
-    mvc.perform(delete("/v1/statistic/subscriber/" + 0))
-       .andExpect(status().isBadRequest())
-       .andExpect(jsonPath("$.status").value(400))
-       .andExpect(jsonPath("$.data").isArray())
-       .andExpect(jsonPath("$.data.size()").value(1))
-       .andDo(print());
+    mvc.perform(
+            delete("/v1/statistic/subscriber/" + 0)
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf()))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.data").isArray())
+        .andExpect(jsonPath("$.data.size()").value(1))
+        .andDo(print());
 
     // case2 정상 케이스
     mvc.perform(
-           delete("/v1/statistic/subscriber/" + data.id())
-               .contentType(MediaType.APPLICATION_JSON)
-               .content(objectMapper.writeValueAsBytes(data)))
-       .andExpect(status().is2xxSuccessful())
-       .andExpect(result -> assertThat(result.getResponse().getContentLength()).isZero())
-       .andDo(print());
+            delete("/v1/statistic/subscriber/" + data.id())
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(data)))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(result -> assertThat(result.getResponse().getContentLength()).isZero())
+        .andDo(print());
 
     // case3 미존재 케이스
     var errorMsg = "가입자 정보가 없습니다.";
@@ -276,12 +328,15 @@ class SubscriberStatisticControllerTest {
         .given(subscriberRecordStatisticService)
         .deleteStatistic(data.id());
 
-    mvc.perform(delete("/v1/statistic/subscriber/" + data.id()))
-       .andExpect(status().isNotFound())
-       .andExpect(jsonPath("$.status").value(404))
-       .andExpect(jsonPath("$.data").exists())
-       .andExpect(jsonPath("$.data").value(errorMsg))
-       .andDo(print());
+    mvc.perform(
+            delete("/v1/statistic/subscriber/" + data.id())
+                .header(HttpHeaders.AUTHORIZATION, exampleToken)
+                .with(csrf()))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data").value(errorMsg))
+        .andDo(print());
 
     then(subscriberRecordStatisticService).should(times(2)).deleteStatistic(data.id());
   }

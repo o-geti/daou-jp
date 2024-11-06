@@ -1,4 +1,4 @@
-package com.minsu.kim.daoujapan.filter;
+package com.minsu.kim.daoujapan.security;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -41,9 +41,6 @@ public class RequestProcessTimeMarkerFilter implements Filter {
   private void printRequestPrinter(HttpServletRequest servletRequest) {
 
     log.info("-------------요청 처리 ID : {} -------------", servletRequest.getAttribute("requestId"));
-    log.info("path = {}", servletRequest.getPathInfo());
-    log.info("query = {}", servletRequest.getQueryString());
-    log.info("method = {}", servletRequest.getMethod());
     log.info(
         "time: {}",
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss;SSS")));

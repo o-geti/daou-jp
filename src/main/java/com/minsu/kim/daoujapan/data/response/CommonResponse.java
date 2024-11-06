@@ -18,8 +18,16 @@ public record CommonResponse<T>(int status, T data) {
     return new CommonResponse<>(HttpStatus.CREATED.value(), data);
   }
 
+  public static <T> CommonResponse<T> responseUnauthorized(T data) {
+    return new CommonResponse<>(HttpStatus.UNAUTHORIZED.value(), data);
+  }
+
   public static <T> CommonResponse<T> responseBadRequest(T data) {
     return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), data);
+  }
+
+  public static <T> CommonResponse<T> responseForbidden(T data) {
+    return new CommonResponse<>(HttpStatus.FORBIDDEN.value(), data);
   }
 
   public static <T> CommonResponse<T> responseNotFound(T data) {

@@ -487,3 +487,6 @@ INSERT INTO sales_amount_statistics (record_time, sales_amount) VALUES ('2024-10
 INSERT INTO sales_amount_statistics (record_time, sales_amount) VALUES ('2024-10-31 21:00:00', 490982320);
 INSERT INTO sales_amount_statistics (record_time, sales_amount) VALUES ('2024-10-31 22:00:00', 498329301);
 INSERT INTO sales_amount_statistics (record_time, sales_amount) VALUES ('2024-10-31 23:00:00', 502889046);
+
+-- users id: test123 pw: 1234
+INSERT INTO users (username, password) VALUES ('test123', '$2a$10$9qVKJ1xAZFCZN0243ltwd.hBd7I/US67LeQ2Z5cgjkLOeEgAKJqQ2');
