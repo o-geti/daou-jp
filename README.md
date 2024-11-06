@@ -118,7 +118,7 @@ logback 설정은 기존 상용환경과 다르게 로그 레벨을 디버깅 �
 
 ## 6 설계.
 ### 6-1. 테이블 설계 이미지
-![image](https://github.com/oct-sky-out/dau-japan-project/blob/main/doc-static/table.png?raw=true)
+![image](https://github.com/o-geti/daou-jp/blob/main/doc-static/table.png?raw=true)
 ### 6-2. 소스 아키텍처
 ```
 .
@@ -165,11 +165,11 @@ logback 설정은 기존 상용환경과 다르게 로그 레벨을 디버깅 �
 ```
 ### 6-3. 유스케이스별 흐름.
 #### 1. 로그인
-![image](https://github.com/oct-sky-out/daou-japan-project/blob/main/doc-static/Login.png)
+![image](https://github.com/o-geti/daou-jp/blob/main/doc-static/Login.png?raw=true)
 #### 2. 데이터 요청
-![image](https://github.com/oct-sky-out/daou-japan-project/blob/main/doc-static/resourceAPI.png)
+![image](https://github.com/o-geti/daou-jp/blob/main/doc-static/resourceAPI.png?raw=true)
 #### 3. rate limit 에러 케이스
-![image](https://github.com/oct-sky-out/daou-japan-project/blob/main/doc-static/toomany.png)
+![image](https://github.com/o-geti/daou-jp/blob/main/doc-static/toomany.png?raw=true)
 
 ## 7.Rate limit 설정
 1. Resilience4j를 이용하여 rate limit 설정을 진행했습니다.
