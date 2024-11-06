@@ -23,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.session.DisableEncodeUrlFilter;
 
 import com.minsu.kim.daoujapan.security.AccessDinedHandlerImpl;
@@ -36,7 +35,7 @@ import com.minsu.kim.daoujapan.security.TokenFilter;
  * @since 1.0
  */
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
   private static final RequestProcessTimeMarkerFilter API_TIME_MARKER_FILTER =
@@ -72,10 +71,10 @@ public class SecurityConfig {
         .addFilterBefore(
             new TokenFilter(objectMapper, getFakeRedis()),
             UsernamePasswordAuthenticationFilter.class)
-        .addFilterBefore(API_TIME_MARKER_FILTER, LogoutFilter.class)
         .addFilterBefore(
             new AccessWhiteIpAddressFilter(whiteListIpConfig, objectMapper),
             DisableEncodeUrlFilter.class)
+        .addFilterBefore(API_TIME_MARKER_FILTER, AccessWhiteIpAddressFilter.class)
         .exceptionHandling(exceptConfig -> exceptConfig.accessDeniedHandler(accessDinedHandler));
 
     return http.build();
@@ -101,10 +100,10 @@ public class SecurityConfig {
               formLoginConfigurer.successHandler(successHandler);
             })
         .logout(LogoutConfigurer::disable)
-        .addFilterBefore(API_TIME_MARKER_FILTER, LogoutFilter.class)
         .addFilterBefore(
             new AccessWhiteIpAddressFilter(whiteListIpConfig, objectMapper),
             DisableEncodeUrlFilter.class)
+        .addFilterBefore(API_TIME_MARKER_FILTER, AccessWhiteIpAddressFilter.class)
         .exceptionHandling(exceptConfig -> exceptConfig.accessDeniedHandler(accessDinedHandler));
 
     return http.build();
