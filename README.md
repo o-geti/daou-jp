@@ -74,7 +74,9 @@ port : 23306
 ```
 ### 3-3 토큰 발급 및 API사용 방법
 1. http://localhost:8080/login 으로 접속하여 로그인 후 토큰을 발급받으세요.
-   1. 로그인 정보 -> | username: test123 | password: 1234 |
+   1. 로그인 정보<br>
+      username: test123<br>
+       password: 1234
 2. Swagger에 접속해주세요. - http://localhost:8080/swagger-ui/index.html#/
 3. Swagger의 Authroize에 발급한 토큰을 넣어주주세요.
 4. 원하시는 API를 명세 규격에 맞게 사용해주세요.
