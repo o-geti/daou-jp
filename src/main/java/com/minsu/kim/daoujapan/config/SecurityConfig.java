@@ -1,6 +1,5 @@
 package com.minsu.kim.daoujapan.config;
 
-import com.minsu.kim.daoujapan.security.AccessWhiteIpAddressFilter;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -25,10 +24,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.session.DisableEncodeUrlFilter;
 
+import com.minsu.kim.daoujapan.security.AccessDinedHandlerImpl;
+import com.minsu.kim.daoujapan.security.AccessWhiteIpAddressFilter;
 import com.minsu.kim.daoujapan.security.RequestProcessTimeMarkerFilter;
 import com.minsu.kim.daoujapan.security.TokenFilter;
-import com.minsu.kim.daoujapan.security.AccessDinedHandlerImpl;
 
 /**
  * @author minsu.kim
@@ -72,7 +73,9 @@ public class SecurityConfig {
             new TokenFilter(objectMapper, getFakeRedis()),
             UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(API_TIME_MARKER_FILTER, LogoutFilter.class)
-        .addFilterAfter(new AccessWhiteIpAddressFilter(whiteListIpConfig, objectMapper), RequestProcessTimeMarkerFilter.class)
+        .addFilterBefore(
+            new AccessWhiteIpAddressFilter(whiteListIpConfig, objectMapper),
+            DisableEncodeUrlFilter.class)
         .exceptionHandling(exceptConfig -> exceptConfig.accessDeniedHandler(accessDinedHandler));
 
     return http.build();
@@ -99,7 +102,9 @@ public class SecurityConfig {
             })
         .logout(LogoutConfigurer::disable)
         .addFilterBefore(API_TIME_MARKER_FILTER, LogoutFilter.class)
-        .addFilterAfter(new AccessWhiteIpAddressFilter(whiteListIpConfig, objectMapper), RequestProcessTimeMarkerFilter.class)
+        .addFilterBefore(
+            new AccessWhiteIpAddressFilter(whiteListIpConfig, objectMapper),
+            DisableEncodeUrlFilter.class)
         .exceptionHandling(exceptConfig -> exceptConfig.accessDeniedHandler(accessDinedHandler));
 
     return http.build();

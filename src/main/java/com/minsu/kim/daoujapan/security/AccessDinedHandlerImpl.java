@@ -1,7 +1,5 @@
 package com.minsu.kim.daoujapan.security;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-
 import java.io.IOException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,10 +32,11 @@ public class AccessDinedHandlerImpl implements AccessDeniedHandler {
       AccessDeniedException accessDeniedException)
       throws IOException {
 
-    var errorMessage = objectMapper.writeValueAsString(CommonResponse.responseForbidden("접근 권한이 없습니다."));
+    var errorMessage =
+        objectMapper.writeValueAsString(CommonResponse.responseForbidden("접근 권한이 없습니다."));
 
     response.setStatus(HttpStatus.FORBIDDEN.value());
-    response.setContentType(APPLICATION_JSON_UTF8.getType());
+    response.setContentType("application/json;charset=UTF-8");
     response.sendError(HttpStatus.FORBIDDEN.value(), errorMessage);
   }
 }
