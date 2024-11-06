@@ -1,7 +1,5 @@
 package com.minsu.kim.daoujapan.security;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentMap;
 
@@ -42,9 +40,11 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
       HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
     var user = (User) authentication.getPrincipal();
 
-    ;
     var applicationUser =
-        new ApplicationUser(LocalDateTime.now().plusMinutes(TOKEN_EXPIRE_TIME), user.getUsername(), user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
+        new ApplicationUser(
+            LocalDateTime.now().plusMinutes(TOKEN_EXPIRE_TIME),
+            user.getUsername(),
+            user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
 
     var principalString = objectMapper.writeValueAsString(applicationUser);
 
@@ -54,7 +54,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     fakeRedis.put(token, applicationUser.getTokenExpireTime());
 
     response.setStatus(HttpStatus.OK.value());
-    response.setContentType(APPLICATION_JSON_UTF8.getType());
+    response.setContentType("application/json;charset=UTF-8");
     response
         .getWriter()
         .write(objectMapper.writeValueAsString(CommonResponse.responseSuccess(token)));

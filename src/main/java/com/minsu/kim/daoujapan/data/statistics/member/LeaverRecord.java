@@ -10,7 +10,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * 탈퇴자 통계 데이터 레코드입니다.
@@ -29,11 +28,9 @@ public record LeaverRecord(
   @ToString
   public static class Filter {
     @Parameter(description = "조회 시작 날짜 및 시간", example = "2024-11-01T14:30:00")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime searchFrom;
 
     @Parameter(description = "조회 마지막 날짜 및 시간", example = "2024-11-01T14:40:00")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime searchTo;
 
     @Parameter(description = "페이지 크기", example = "10")
