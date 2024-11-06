@@ -78,7 +78,7 @@ port : 23306
       username: test123<br>
        password: 1234
 2. Swagger에 접속해주세요. - http://localhost:8080/swagger-ui/index.html#/
-3. Swagger의 Authroize에 발급한 토큰을 넣어주주세요.
+3. Swagger의 Authroize에 발급한 토큰을 넣어주세요.
 4. 원하시는 API를 명세 규격에 맞게 사용해주세요.
 
 ## 4. 코드 스타일 가이드
