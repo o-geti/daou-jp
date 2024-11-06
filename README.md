@@ -56,8 +56,9 @@
 
 ## 3. 데모버전 실행
 ### 3-0 데모버전 실행 전 준비사항
-   1. docker cli (docker compose로 mysql 실행해야합니다!)
-   2. java jdk 21 (21버전 미만의 경우, `./gradlew bootrun` 실행시 에러가 발생합니다!)
+   1. docker cli (docker compose로 mysql 실행해야합니다!) - 둘 중 하나를 선택해주세요. [도커 데스크탑 다운로드](https://www.docker.com/products/docker-desktop/) 혹은 [rancher desktop 다운로드](https://rancherdesktop.io/)
+      * 엔터프라이즈 규모이시라면 rancher desktop을 권장합니다.
+   2. java jdk 21 (21버전 미만의 경우, `./gradlew bootrun` 실행시 에러가 발생합니다!) - [테무린 자바21 다운로드](https://adoptium.net/temurin/releases/)
 ### 3-1. Mysql 실행
 ```sh
 docker compose up -d
